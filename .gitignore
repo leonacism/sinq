@@ -1,0 +1,4 @@
+bin/*
+*.hxml
+*.hxproj
+*.txt
