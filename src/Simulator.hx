@@ -1,4 +1,5 @@
 package;
+import circuit.Circuit;
 import operation.Operation;
 import util.Complex;
 import util.NdArray;
@@ -9,30 +10,21 @@ import util.NdArray;
  */
 class Simulator
 {
-	static public function run(circuit:Circuit):Array<Bool> {
-		var initialStates:Array<Bool> = [for (i in 0...circuit.numQubits) true];
-		//var rawState:Array<Complex> = getRawState(initialStates);
-		var indexMap:Map<Int, Int> = [for (i in 0...circuit.numQubits) circuit.qubits[i].id => i];
-		var stateSize:Int = Std.int(Math.pow(2, initialStates.length));
+	static public function run(circuit:circuit.Circuit):Array<Bool> {
+		var qubits:Array<Qubit> = circuit.getQubits();
+		var numQubits:Int = qubits.length;
+		var stateSize:Int = Std.int(Math.pow(2, numQubits));
+		
+		var initialStates:Array<Bool> = [for (i in 0...numQubits) true];
+		var indexMap:Map<Int, Int> = [for (i in 0...numQubits) qubits[i].id => i];
+		
 		var rawStates:NdArray = NdArray.identity(stateSize);
-		for (op in circuit.operations) {
+		for (moment in circuit.moments) for(op in moment.operations) {
 			rawStates = resolveByRepresentation(op, rawStates, indexMap);
 		}
 		var measurement = measure(rawStates, initialStates);
 		return measurement;
 	}
-	
-	/*
-	static private function getRawState(initialStates:Array<Bool>):Array<Complex> {
-		var data:Array<Complex> = [for (i in 0...Std.int(Math.pow(2, initialStates.length))) Complex.zero];
-		
-		var index:Int = 0;
-		for (i in 0...initialStates.length) if (initialStates[i]) index += Std.int(Math.pow(2, i));
-		data[index] = Complex.one;
-		
-		return data;
-	}
-	*/
 	
 	// O(2^{3*n})
 	static private function resolveByRepresentation(op:Operation, states:NdArray, indexMap:Map<Int, Int>):NdArray {

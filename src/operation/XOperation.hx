@@ -21,4 +21,8 @@ class XOperation implements Operation
 			[Complex.one , Complex.zero],
 		];
 	}
+	
+	public function keys():Iterator<Int> {
+		return [for (q in qubits) q.id].iterator();
+	}
 }

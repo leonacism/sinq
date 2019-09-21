@@ -22,4 +22,8 @@ class HOperation implements Operation
 			[Complex.mulConst(c, Complex.one) , Complex.mulConst(-c, Complex.one)],
 		];
 	}
+	
+	public function keys():Iterator<Int> {
+		return [for (q in qubits) q.id].iterator();
+	}
 }
