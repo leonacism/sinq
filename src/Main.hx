@@ -1,11 +1,15 @@
 package;
 import circuit.Circuit;
 import circuit.strategy.InsertStrategyKind;
+import operation.gate.CCXGate;
 import operation.gate.CNotGate;
+import operation.gate.CZGate;
 import operation.gate.HGate;
 import operation.gate.XGate;
 import operation.gate.YGate;
 import operation.gate.ZGate;
+import util.Complex;
+import util.NdArray;
 
 /**
  * ...
@@ -13,7 +17,6 @@ import operation.gate.ZGate;
  */
 class Main 
 {
-	
 	static function main() 
 	{
 		// prepare a qubit.
@@ -26,8 +29,7 @@ class Main
 		
 		// setup operations.
 		circuit.append([
-			new HGate().on([q0]),
-			new CNotGate().on([q0,q1])
+			new CCXGate().on([q0,q1,q2])
 		]);
 		
 		// run the simulation.

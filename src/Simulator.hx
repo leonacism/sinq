@@ -17,7 +17,6 @@ class Simulator
 		
 		var initialStates:Map<Qid, Bool> = [for (i in 0...numQubits) qubits[i].id => true];
 		var digitMap:Map<Qid, Int> = [for (i in 0...numQubits) qubits[i].id => numQubits-i-1];
-		trace(digitMap);
 		
 		var rawStates:NdArray = NdArray.identity(stateSize);
 		for (moment in circuit.moments) for(op in moment.operations) {
@@ -52,7 +51,6 @@ class Simulator
 			
 			output[i][j] = sum;
 		}
-		trace(output.toString());
 		
 		return output;
 	}

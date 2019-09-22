@@ -9,7 +9,7 @@ import util.NdArray;
  * ...
  * @author leonaci
  */
-class YGate implements EigenGate extends SingleQubitGate
+class ZZGate implements EigenGate extends SingleQubitGate
 {
 	public var exponent(default, null):Float;
 	
@@ -18,17 +18,13 @@ class YGate implements EigenGate extends SingleQubitGate
 	}
 	
 	public function pow(exponent:Float):UnitaryGate {
-		var gate:UnitaryGate = new YGate(this.exponent + exponent);
+		var gate:UnitaryGate = new ZZGate(this.exponent + exponent);
 		return gate;
 	}
 	
 	public function represent():NdArray {
-		var a = Complex.j ^ exponent;
-		var c = Complex.from(Math.cos(Math.PI / 2 * exponent));
-		var s = Complex.from(Math.sin(Math.PI / 2 * exponent));
-		return NdArray.array([
-			[a * c, -a * s],
-			[a * s,  a * c],
-		]);
+		var one = Complex.one;
+		var a = Complex.j ^ (2*exponent);
+		return NdArray.diag([one, a, a, one]);
 	}
 }

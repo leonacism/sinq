@@ -23,14 +23,14 @@ class HGate implements EigenGate extends SingleQubitGate
 	}
 	
 	public function represent():NdArray {
-		var g = Complex.j ^ exponent;
 		var j = Complex.j;
+		var a = j ^ exponent;
 		var c = Complex.from(Math.cos(Math.PI / 2 * exponent));
 		var s = Complex.from(Math.sin(Math.PI / 2 * exponent));
 		var n = 1 / Math.sqrt(2);
-		return [
-			[ g * (c - j * s * n),      -j * g * s * n ],
-			[     -j * g * s * n ,  g * (c + j * s * n)],
-		];
+		return NdArray.array([
+			[ a * (c - j * s * n),      -j * a * s * n ],
+			[     -j * a * s * n ,  a * (c + j * s * n)],
+		]);
 	}
 }

@@ -25,14 +25,15 @@ class CNotGate implements EigenGate extends TwoQubitGate
 	public function represent():NdArray {
 		var zero = Complex.zero;
 		var one = Complex.one;
+		var j = Complex.j;
 		var a = Complex.j ^ exponent;
 		var c = Complex.from(Math.cos(Math.PI / 2 * exponent));
 		var s = Complex.from(Math.sin(Math.PI / 2 * exponent));
-		return [
-			[ one, zero,               zero,               zero],
-			[zero,  one,               zero,               zero],
-			[zero, zero,              a * c, -Complex.j * a * s],
-			[zero, zero, -Complex.j * a * s,              a * c],
-		];
+		return NdArray.array([
+			[ one, zero,       zero,       zero],
+			[zero,  one,       zero,       zero],
+			[zero, zero,      a * c, -j * a * s],
+			[zero, zero, -j * a * s,      a * c],
+		]);
 	}
 }

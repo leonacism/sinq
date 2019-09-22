@@ -26,9 +26,9 @@ class XGate implements EigenGate extends SingleQubitGate
 		var a = Complex.j ^ exponent;
 		var c = Complex.from(Math.cos(Math.PI / 2 * exponent));
 		var s = Complex.from(Math.sin(Math.PI / 2 * exponent));
-		return [
+		return NdArray.array([
 			[             a * c, -Complex.j * a * s],
 			[-Complex.j * a * s,              a * c],
-		];
+		]);
 	}
 }
