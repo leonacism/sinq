@@ -14,11 +14,13 @@ import operation.Operation;
 class Circuit
 {
 	public var moments(default, null):Array<Moment>;
+	public var qubits(default, null):Array<Qubit>;
 	
 	private var strategyKind:InsertStrategyKind;
 	
-	public function new() {
+	public function new(qubits:Array<Qubit>) {
 		moments = [];
+		this.qubits = qubits;
 		strategyKind = InsertStrategyKind.NewThenInline;
 	}
 	
@@ -29,21 +31,13 @@ class Circuit
 			case InsertStrategyKind.Inline: InsertStrategyInline.insert(moments, operations);
 			case InsertStrategyKind.NewThenInline: InsertStrategyNewThenInline.insert(moments, operations);
 		}
-		trace(moments.length);
+		
 		return this;
 	}
 	
-	static public function fromOperations(operations:Array<Operation>, ?strategyKind:InsertStrategyKind):Circuit {
-		var circuit = new Circuit();
+	static public function fromOperations(qubits:Array<Qubit>, operations:Array<Operation>, ?strategyKind:InsertStrategyKind):Circuit {
+		var circuit = new Circuit(qubits);
 		circuit.append(operations, strategyKind);
 		return circuit;
-	}
-	
-	public function getQubits():Array<Qubit> {
-		var result:Array<Qubit> = [];
-		
-		for (moment in moments) for (q in moment.qubits) if (result.indexOf(q) == -1) result.push(q);
-		
-		return result;
 	}
 }

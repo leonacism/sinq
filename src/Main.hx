@@ -1,7 +1,11 @@
 package;
 import circuit.Circuit;
-import operation.HOperation;
-import operation.XOperation;
+import circuit.strategy.InsertStrategyKind;
+import operation.gate.CNotGate;
+import operation.gate.HGate;
+import operation.gate.XGate;
+import operation.gate.YGate;
+import operation.gate.ZGate;
 
 /**
  * ...
@@ -18,13 +22,12 @@ class Main
 		var q2 = new Qubit();
 		
 		// initialize a circuit.
-		var circuit = new Circuit();
+		var circuit = new Circuit([q0, q1, q2]);
 		
 		// setup operations.
 		circuit.append([
-			new HOperation([q0]),
-			new HOperation([q1]),
-			new HOperation([q2]),
+			new HGate().on([q0]),
+			new CNotGate().on([q0,q1])
 		]);
 		
 		// run the simulation.
@@ -35,7 +38,7 @@ class Main
 	
 	static function print(result:Array<Bool>):Void {
 		var str:String = '';
-		for (r in result) str += r? '↑' : '↓';
+		for (i in 0...result.length) str += result[i]? '↑' : '↓';
 		trace(str);
 	}
 }

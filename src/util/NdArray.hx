@@ -13,8 +13,19 @@ abstract NdArray(Array<Array<Complex>>) from Array<Array<Complex>> to Array<Arra
 		return data;
 	}
 	
+	static public function diag(values:Array<Complex>):NdArray {
+		var size = values.length;
+		var data:NdArray = [for (i in 0...size) [for (j in 0...size) i==j? values[i] : Complex.zero]];
+		return data;
+	}
+	
 	public function clone():NdArray {
 		var data:NdArray = [for (i in 0...size) [for (j in 0...size) this[i][j].clone()]];
 		return data;
+	}
+	
+	public function toString():String {
+		var str = '[' + this.map(a -> '[' + a.map(b->b.toString()).join(', ') + ']').join(',\n') + ']';
+		return str;
 	}
 }

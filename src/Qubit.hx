@@ -1,4 +1,5 @@
 package;
+import haxe.crypto.Sha1;
 
 /**
  * ...
@@ -8,11 +9,11 @@ class Qubit
 {
 	static private var UID:Int = 0;
 	
-	public var id:Int;
+	public var id:Qid;
 	
 	public function new() 
 	{
-		id = UID++;
+		id = new Qid(UID++);
 	}
 	
 }

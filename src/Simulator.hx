@@ -10,85 +10,91 @@ import util.NdArray;
  */
 class Simulator
 {
-	static public function run(circuit:circuit.Circuit):Array<Bool> {
-		var qubits:Array<Qubit> = circuit.getQubits();
+	static public function run(circuit:Circuit):Array<Bool> {
+		var qubits:Array<Qubit> = circuit.qubits;
 		var numQubits:Int = qubits.length;
-		var stateSize:Int = Std.int(Math.pow(2, numQubits));
+		var stateSize:Int = pow2(numQubits);
 		
-		var initialStates:Array<Bool> = [for (i in 0...numQubits) true];
-		var indexMap:Map<Int, Int> = [for (i in 0...numQubits) qubits[i].id => i];
+		var initialStates:Map<Qid, Bool> = [for (i in 0...numQubits) qubits[i].id => true];
+		var digitMap:Map<Qid, Int> = [for (i in 0...numQubits) qubits[i].id => numQubits-i-1];
+		trace(digitMap);
 		
 		var rawStates:NdArray = NdArray.identity(stateSize);
 		for (moment in circuit.moments) for(op in moment.operations) {
-			rawStates = resolveByRepresentation(op, rawStates, indexMap);
+			rawStates = resolveByRepresentation(op, rawStates, digitMap);
 		}
-		var measurement = measure(rawStates, initialStates);
+		var measurement = measure(rawStates, initialStates, qubits, digitMap);
 		return measurement;
 	}
 	
 	// O(2^{3*n})
-	static private function resolveByRepresentation(op:Operation, states:NdArray, indexMap:Map<Int, Int>):NdArray {
+	static private function resolveByRepresentation(op:Operation, states:NdArray, digitMap:Map<Qid, Int>):NdArray {
 		var size = states.size;
-		var indices:Array<Int> = getIndices(op, indexMap);
+		var numQubits = log2(size);
+		var numTargetQubits = op.qubits.length;
+		var numNontargetQubits = numQubits - numTargetQubits;
+		
+		var targetDigitMap:Map<Qid, Int> = [for (i in 0...numTargetQubits) op.qubits[i].id => numTargetQubits-i-1];
+		var i=numNontargetQubits;
+		var nontargetDigitMap:Map<Qid, Int> = [for (id in digitMap.keys()) if (!targetDigitMap.exists(id)) id => --i];
+		
 		var output:NdArray = NdArray.identity(size);
 		
 		var operation:NdArray = op.represent();
-		
-		for (k in 0...pow2(log2(size) - indices.length)) for (m in 0...pow2(indices.length)) for (j in 0...size) {
-			var i:Int = compose(k, m, indices, log2(size));
-		
+		for (k in 0...pow2(numNontargetQubits)) for (m in 0...pow2(numTargetQubits)) for (j in 0...size) {
+			var i:Int = compose(k, m, digitMap, targetDigitMap, nontargetDigitMap);
+			
 			var sum = Complex.zero;
-			for (n in 0...pow2(indices.length)) {
-				var l:Int = compose(k, n, indices, log2(size));
-				sum = Complex.add(sum, Complex.mul(operation[m][n], states[l][j]));
+			for (n in 0...pow2(numTargetQubits)) {
+				var l:Int = compose(k, n, digitMap, targetDigitMap, nontargetDigitMap);
+				sum += operation[m][n] * states[l][j];
 			}
 			
 			output[i][j] = sum;
 		}
+		trace(output.toString());
 		
 		return output;
 	}
 	
-	static private inline function compose(k:Int, m:Int, indices:Array<Int>, length:Int):Int {
-		var i = 0, a = 0, b = 0;
-		for (c in 0...length) {
-			var d = Std.int(indices.indexOf(c)==-1? k/pow2(a++) : m/pow2(b++));
-			if (d % 2 == 1) i += pow2(c);
+	static private inline function compose(k:Int, m:Int, digitMap:Map<Qid, Int>, targetDigitMap:Map<Qid, Int>, nontargetDigitMap:Map<Qid, Int>):Int {
+		var i = 0;
+		for (id in digitMap.keys()) {
+			var d = Std.int(targetDigitMap.exists(id)? m / pow2(targetDigitMap[id]) : k / pow2(nontargetDigitMap[id]));
+			if (d % 2 == 1) i += pow2(digitMap[id]);
 		}
 		return i;
 	}
 	
-	static private inline function pow2(n:Int):Int return Std.int(Math.pow(2, n));
-	static private inline function log2(n:Int):Int return Std.int(Math.log(n) / Math.log(2));
-	
-	static private function getIndices(op:Operation, indexMap:Map<Int, Int>):Array<Int> {
-		return [for (qubit in op.qubits) indexMap[qubit.id]];
-	}
-	
-	static private function measure(states:NdArray, initialStates:Array<Bool>):Array<Bool> {
+	static private function measure(states:NdArray, initialStates:Map<Qid,Bool>, qubits:Array<Qubit>, digitMap:Map<Qid, Int>):Array<Bool> {
 		var j:Int = 0;
-		for (i in 0...initialStates.length) if (initialStates[i]) j += Std.int(Math.pow(2, i));
-		var dist = [for (i in 0...states.size) states[i][j].norm2()];
+		for (id in initialStates.keys()) if (initialStates[id]) j += pow2(digitMap[id]);
+		
+		var dist = [for (l in 0...states.size) l => states[l][j].norm2()];
 		//trace(dist+'');
-		var result = choice(dist);
-		var measurement:Array<Bool> = [for (i in 0...initialStates.length) {
-			switch(Math.floor(result / Math.pow(2, i)) % 2) {
+		
+		var result:Int = choice(dist);
+		var measurement:Array<Bool> = [for (i in 0...qubits.length)
+			switch(Std.int(result / pow2(digitMap[qubits[i].id])) % 2) {
 				case 1: true;
 				case 0: false;
 				case _: throw '!?';
 			}
-		}];
+		];
 		
 		return measurement;
 	}
 	
-	static private function choice(dist:Array<Float>):Int {
+	static private function choice(dist:Map<Int, Float>):Int {
 		var sum = 0.0;
 		for (p in dist) sum += p;
-		if (sum != 1.0) for (i in 0...dist.length) dist[i] /= sum;
+		if (sum != 1.0) for (i in dist.keys()) dist[i] /= sum;
 		
 		var r = Math.random();
-		for(i in 0...dist.length) if((r-=dist[i])<0) return i;
+		for(i in dist.keys()) if((r-=dist[i])<0) return i;
 		return throw '!?';
 	}
+	
+	static private inline function pow2(n:Int):Int return Std.int(Math.pow(2, n));
+	static private inline function log2(n:Int):Int return Std.int(Math.log(n) / Math.log(2));
 }

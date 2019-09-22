@@ -8,6 +8,7 @@ import util.NdArray;
 interface Operation
 {
 	var qubits(default, null):Array<Qubit>;
+	var operationKind(get, null):OperationKind;
 	function represent():NdArray;
-	function keys():Iterator<Int>;
+	function keys():Iterator<Qid>;
 }

@@ -8,7 +8,7 @@ class Moment
 {
 	public var operations(default, null):Array<Operation>;
 	public var qubits(default, null):Array<Qubit>;
-	public var affected(default, null):Array<Int>;
+	public var affected(default, null):Array<Qid>;
 	
 	public function new(?operations:Array<Operation>)
 	{
