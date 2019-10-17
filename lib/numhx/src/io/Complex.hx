@@ -1,16 +1,27 @@
-package util;
+package io ;
 
 /**
  * ...
  * @author leonaci
  */
-private typedef ComplexComponent = {
+class IComplex {
 	public var re:Float;
 	public var im:Float;
+	
+	public inline function new() {}
+	
+	public function toString():String {
+		return switch[this.re, this.im] {
+			case [a, b] if(Math.abs(a) < 1e-10 && Math.abs(b) < 1e-10): '0';
+			case [a, _] if(Math.abs(a) < 1e-10): 'j*${this.im}';
+			case [_, b] if(Math.abs(b) < 1e-10): '${this.re}';
+			case [_, _]: '${this.re} + j*${this.im}';
+		}
+	}
 }
 
 @:forward(re, im)
-abstract Complex(ComplexComponent) {
+abstract Complex(IComplex) {
 	static public var zero(get, never):Complex;
 	static function get_zero():Complex return Complex.from(0);
 	
@@ -21,10 +32,9 @@ abstract Complex(ComplexComponent) {
 	static function get_j():Complex return Complex.fromComponents(0, 1);
 	
 	private inline function new(re:Float, im:Float):Void {
-		this = {
-			re : re,
-			im : im,
-		}
+		this = new IComplex();
+		this.re = re;
+		this.im = im;
 	}
 	
 	@:op(A+B)
@@ -42,8 +52,8 @@ abstract Complex(ComplexComponent) {
 		return Complex.fromComponents(c1.re * c2.re - c1.im * c2.im, c1.re * c2.im + c1.im * c2.re);
 	}
 	
-	@:op(A*B)
-	static public function mulConst(a:Float, c:Complex):Complex {
+	@:commutative @:op(A*B)
+	static public function mulScalar(c:Complex, a:Float):Complex {
 		return Complex.fromComponents(a * c.re, a * c.im);
 	}
 	
@@ -78,11 +88,6 @@ abstract Complex(ComplexComponent) {
 	}
 	
 	public function toString():String {
-		return switch[this.re, this.im] {
-			case [a, b] if(Math.abs(a) < 1e-10 && Math.abs(b) < 1e-10): '0';
-			case [a, _] if(Math.abs(a) < 1e-10): 'j*${this.im}';
-			case [_, b] if(Math.abs(b) < 1e-10): '${this.re}';
-			case [_, _]: '${this.re} + j*${this.im}';
-		}
+		return this.toString();
 	}
 }
