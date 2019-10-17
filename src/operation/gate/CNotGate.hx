@@ -1,9 +1,9 @@
 package operation.gate;
+import io.Complex;
 import operation.gate.feature.EigenGate;
 import operation.gate.feature.TwoQubitGate;
 import operation.gate.feature.UnitaryGate;
-import util.Complex;
-import util.NdArray;
+
 
 /**
  * ...

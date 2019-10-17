@@ -1,5 +1,5 @@
 package operation.gate.feature;
-import util.NdArray;
+
 
 /**
  * @author leonaci

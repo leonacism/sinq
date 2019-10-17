@@ -1,8 +1,10 @@
 package;
+import backend.BackendKind;
 import circuit.Circuit;
+import io.Complex;
 import operation.Operation;
-import util.Complex;
-import util.NdArray;
+
+
 
 /**
  * ...
@@ -11,25 +13,26 @@ import util.NdArray;
 class Simulator
 {
 	static public function run(circuit:Circuit):Array<Bool> {
+		Session.setBackend(BackendKind.Cpu);
+		
 		var qubits:Array<Qubit> = circuit.qubits;
 		var numQubits:Int = qubits.length;
-		var stateSize:Int = pow2(numQubits);
+		var stateSize:Int = 1 << numQubits;
 		
 		var initialStates:Map<Qid, Bool> = [for (i in 0...numQubits) qubits[i].id => true];
 		var digitMap:Map<Qid, Int> = [for (i in 0...numQubits) qubits[i].id => numQubits-i-1];
 		
-		var rawStates:NdArray = NdArray.identity(stateSize);
+		var rawStates:NdArray = NdArray.identity(stateSize, NdArrayDataType.COMPLEX);
 		for (moment in circuit.moments) for(op in moment.operations) {
-			rawStates = resolveByRepresentation(op, rawStates, digitMap);
+			rawStates = resolveByRepresentation(op, rawStates, numQubits, digitMap);
 		}
 		var measurement = measure(rawStates, initialStates, qubits, digitMap);
 		return measurement;
 	}
 	
 	// O(2^{3*n})
-	static private function resolveByRepresentation(op:Operation, states:NdArray, digitMap:Map<Qid, Int>):NdArray {
-		var size = states.size;
-		var numQubits = log2(size);
+	static private function resolveByRepresentation(op:Operation, states:NdArray, numQubits:Int, digitMap:Map<Qid, Int>):NdArray {
+		var size = 1 << numQubits;
 		var numTargetQubits = op.qubits.length;
 		var numNontargetQubits = numQubits - numTargetQubits;
 		
@@ -37,43 +40,45 @@ class Simulator
 		var i=numNontargetQubits;
 		var nontargetDigitMap:Map<Qid, Int> = [for (id in digitMap.keys()) if (!targetDigitMap.exists(id)) id => --i];
 		
-		var output:NdArray = NdArray.identity(size);
+		var output:NdArray = NdArray.identity(size, NdArrayDataType.COMPLEX);
 		
 		var operation:NdArray = op.represent();
-		for (k in 0...pow2(numNontargetQubits)) for (m in 0...pow2(numTargetQubits)) for (j in 0...size) {
-			var i:Int = compose(k, m, digitMap, targetDigitMap, nontargetDigitMap);
-			
-			var sum = Complex.zero;
-			for (n in 0...pow2(numTargetQubits)) {
-				var l:Int = compose(k, n, digitMap, targetDigitMap, nontargetDigitMap);
-				sum += operation[m][n] * states[l][j];
+		for(i in 0...size) {
+			var b = 0, m = 0;
+			var t = i;
+			for (id in digitMap.keys()) {
+				var r = 1 << digitMap[id];
+				var d = Std.int(t / r);
+				if(d % 2 == 1) targetDigitMap.exists(id)? m += 1 << targetDigitMap[id] : b += 1 << nontargetDigitMap[id];
+				t %= r;
 			}
 			
-			output[i][j] = sum;
+			var s = 0;
+			for (id in targetDigitMap.keys()) if (targetDigitMap[id] == 0) {
+				s = 1 << digitMap[id];
+				break;
+			}
+			
+			var e = b + (1 << numTargetQubits) * s;
+			
+			output['$i'] = NdArray.dot(operation, states['$b:$e:$s'])['$m'];
 		}
-		
 		return output;
-	}
-	
-	static private inline function compose(k:Int, m:Int, digitMap:Map<Qid, Int>, targetDigitMap:Map<Qid, Int>, nontargetDigitMap:Map<Qid, Int>):Int {
-		var i = 0;
-		for (id in digitMap.keys()) {
-			var d = Std.int(targetDigitMap.exists(id)? m / pow2(targetDigitMap[id]) : k / pow2(nontargetDigitMap[id]));
-			if (d % 2 == 1) i += pow2(digitMap[id]);
-		}
-		return i;
 	}
 	
 	static private function measure(states:NdArray, initialStates:Map<Qid,Bool>, qubits:Array<Qubit>, digitMap:Map<Qid, Int>):Array<Bool> {
 		var j:Int = 0;
-		for (id in initialStates.keys()) if (initialStates[id]) j += pow2(digitMap[id]);
+		for (id in initialStates.keys()) if (initialStates[id]) j += 1 << digitMap[id];
 		
-		var dist = [for (l in 0...states.size) l => states[l][j].norm2()];
+		var dist = [for (l in 0...states.shape[0]) l => {
+			var value:Complex = states[[l, j]];
+			value.norm2();
+		}];
 		//trace(dist+'');
 		
 		var result:Int = choice(dist);
 		var measurement:Array<Bool> = [for (i in 0...qubits.length)
-			switch(Std.int(result / pow2(digitMap[qubits[i].id])) % 2) {
+			switch(Std.int(result / (1 << digitMap[qubits[i].id])) % 2) {
 				case 1: true;
 				case 0: false;
 				case _: throw '!?';
@@ -92,7 +97,4 @@ class Simulator
 		for(i in dist.keys()) if((r-=dist[i])<0) return i;
 		return throw '!?';
 	}
-	
-	static private inline function pow2(n:Int):Int return Std.int(Math.pow(2, n));
-	static private inline function log2(n:Int):Int return Std.int(Math.log(n) / Math.log(2));
 }

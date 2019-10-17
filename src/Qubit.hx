@@ -1,5 +1,4 @@
 package;
-import haxe.crypto.Sha1;
 
 /**
  * ...

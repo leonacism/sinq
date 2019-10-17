@@ -1,7 +1,7 @@
 package operation;
 import operation.gate.Gate;
 import operation.gate.feature.UnitaryGate;
-import util.NdArray;
+
 
 /**
  * ...
