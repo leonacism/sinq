@@ -31,6 +31,12 @@ abstract Complex(IComplex) {
 	static public var j(get, null):Complex;
 	static function get_j():Complex return Complex.fromComponents(0, 1);
 	
+	public var rad(get, never):Float;
+	inline function get_rad():Float return Math.sqrt(this.re * this.re + this.im * this.im);
+	
+	public var arg(get, never):Float;
+	inline function get_arg():Float return Math.atan2(this.im, this.re);
+	
 	private inline function new(re:Float, im:Float):Void {
 		this = new IComplex();
 		this.re = re;
@@ -55,6 +61,17 @@ abstract Complex(IComplex) {
 	@:commutative @:op(A*B)
 	static public function mulScalar(c:Complex, a:Float):Complex {
 		return Complex.fromComponents(a * c.re, a * c.im);
+	}
+	
+	@:op(A/B)
+	static public function div(c1:Complex, c2:Complex):Complex {
+		var n = 1 / (c2.re * c2.re + c2.im + c2.im);
+		return Complex.fromComponents((c1.re * c2.re + c1.im * c2.im)*n, (c1.im * c2.re - c1.re * c2.im)*n);
+	}
+	
+	@:op(A/B)
+	static public function divScalar(c:Complex, a:Float):Complex {
+		return Complex.fromComponents(c.re / a, c.im / a);
 	}
 	
 	@:op(A^B)

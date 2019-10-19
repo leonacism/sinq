@@ -47,7 +47,7 @@ class TypeValidator
 		}
 	}
 	
-	static public inline function cast_(value:Dynamic, required:NdArrayDataType):Dynamic {
+	static public  function cast_(value:Dynamic, required:NdArrayDataType):Dynamic {
 		if (getDtype(value) == required) return value;
 		
 		return switch(required) {
@@ -58,7 +58,7 @@ class TypeValidator
 		}
 	}
 	
-	static public inline function getDtype(value:Dynamic):NdArrayDataType {
+	static public function getDtype(value:Dynamic):NdArrayDataType {
 		return switch(Type.typeof(value)) {
 			case ValueType.TFloat: NdArrayDataType.FLOAT;
 			case ValueType.TInt: NdArrayDataType.INT;

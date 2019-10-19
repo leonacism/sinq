@@ -3,6 +3,7 @@ import backend.cpu.CpuBackend;
 import backend.cpu.CpuNdArrayOperation;
 import buffer.NdArrayBufferId;
 import buffer.NdArrayBufferView;
+import util.MathUtil;
 
 /**
  * ...
@@ -46,7 +47,7 @@ class CpuAsinOperation extends CpuNdArrayOperation
 			}];
 		}
 		
-		if (dst.naive) dst.buffer.setValue([for (i in 0...dst.size) dst.buffer.set(i, Math.asin(v[i]))]);
+		if (dst.naive) dst.buffer.setValue([for (i in 0...dst.size) MathUtil.asin(v[i])]);
 		else {
 			var ndim = dst.ndim;
 			var shape = dst.shape;
@@ -69,7 +70,7 @@ class CpuAsinOperation extends CpuNdArrayOperation
 					j %= targetStrides[i];
 				}
 				
-				dst.buffer.set(idx, Math.asin(v[i]));
+				dst.buffer.set(idx, MathUtil.asin(v[i]));
 			}
 		}
 	}

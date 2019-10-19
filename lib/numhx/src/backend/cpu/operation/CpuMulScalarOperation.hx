@@ -3,6 +3,7 @@ import backend.cpu.CpuBackend;
 import backend.cpu.CpuNdArrayOperation;
 import buffer.NdArrayBufferId;
 import buffer.NdArrayBufferView;
+import util.MathUtil;
 
 /**
  * ...
@@ -48,7 +49,7 @@ class CpuMulScalarOperation extends CpuNdArrayOperation
 			}];
 		}
 		
-		if (dst.naive) dst.buffer.setValue([for (i in 0...dst.size) dst.buffer.set(i, v[i] * b)]);
+		if (dst.naive) dst.buffer.setValue([for (i in 0...dst.size) MathUtil.mul(v[i], b)]);
 		else {
 			var ndim = dst.ndim;
 			var shape = dst.shape;
@@ -71,7 +72,7 @@ class CpuMulScalarOperation extends CpuNdArrayOperation
 					j %= targetStrides[i];
 				}
 				
-				dst.buffer.set(idx, v[i] * b);
+				dst.buffer.set(idx, MathUtil.mul(v[i], b));
 			}
 		}
 	}

@@ -269,19 +269,29 @@ abstract NdArrayBufferView(NdArrayBufferViewData) {
 		return new NdArrayBufferViewData(this.manager, this.buffer, shape, ndim, strides, size, false);
 	}
 	
-	public function slice(check:Array<Bool>, begin:Array<Int>, end:Array<Int>, strides:Array<Int>):NdArrayBufferView {
-		var offset = 0;
-		for (i in 0...ndim) offset += begin[i] * this.strides[i];
-		var buffer = this.subarray(offset);
+	public inline function transpose(axis:Array<Int>) {
+		if (axis.length != this.ndim) throw 'error: invalid axis.';
+		var shape = [for (i in 0...ndim) this.shape[axis[i]]];
+		var strides = [for (i in 0...ndim) this.strides[axis[i]]];
+		return new NdArrayBufferViewData(this.manager, this.buffer, shape, this.ndim, strides, this.size, false);
+	}
+	
+	public function slice(k:Slice):NdArrayBufferView {
+		var shape = this.shape.copy();
+		var strides = this.strides.copy();
 		
-		var shape = [for (i in 0...this.ndim) if(!check[i]) Std.int((end[i]-begin[i]+(strides[i]>0?-1:1))/strides[i])+1];
-		var strides = [for (i in 0...this.ndim) if(!check[i]) this.strides[i] * strides[i]];
+		var offset = k.resolveSlice(shape, strides);
+		var buffer = this.subarray(offset);
 		var ndim = shape.length;
 		
 		var size = 1;
 		for (i in 0...shape.length) size *= shape[i];
 		
 		return new NdArrayBufferViewData(this.manager, buffer, shape, ndim, strides, size, false);
+	}
+	
+	public function copy() : NdArrayBufferView {
+		return this.copy();
 	}
 	
 	public function toString():String {

@@ -49,10 +49,7 @@ abstract NdArray(NdArrayData) {
 	}
 	
 	@:op([]) public function get(k:Slice):NdArray {
-		var c = [], b = [], e = [], s = [];
-		k.resolveSlice(shape, c, b, e, s);
-		
-		return cast view.slice(c, b, e, s);
+		return cast view.slice(k);
 	}
 	
 	@:op([]) public function getValue(k:Array<Int>):Dynamic {
@@ -67,7 +64,7 @@ abstract NdArray(NdArrayData) {
 	@:op([]) public function set(k:Slice, v:NdArray):NdArray {
 		var a:NdArray = v;
 		var dummyDst:NdArray = cast this;
-		var dst:NdArray = get(k);
+		var dst:NdArray = cast view.slice(k);
 		
 		Session.manager.assign(cast a, cast dummyDst, cast dst);
 		
@@ -233,6 +230,15 @@ abstract NdArray(NdArrayData) {
 		return a;
 	}
 	
+	@:op(-A)
+	static public function negate(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.mulScalar(cast a, -1, cast dst);
+		
+		return dst;
+	}
+	
 	static public function dot(a:NdArray, b:NdArray):NdArray {
 		var dst = new NdArray(Session.manager, ShapeValidator.validateDotShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
 		
@@ -243,6 +249,14 @@ abstract NdArray(NdArrayData) {
 	
 	public inline function reshape(shape:Array<Int>):NdArray {
 		return cast view.reshape(shape);
+	}
+	
+	public inline function transpose(axis:Array<Int>) {
+		return cast view.transpose(axis);
+	}
+	
+	public function copy() : NdArray {
+		return cast view.copy();
 	}
 	
 	public inline function toString():String {
@@ -299,11 +313,11 @@ abstract NdArray(NdArrayData) {
 	static public function blockDiag(values:Array<NdArray>, ?dtype:NdArrayDataType):NdArray {
 		if (values.length == 0) throw 'error: blocks are empty.';
 		
-		var dtype = values[0].dtype;
+		var dtype = dtype == null? values[0].dtype : dtype;
 		for (block in values) {
-			if (block.dtype != dtype) throw 'error: types of blocks are mismatched.';
 			if (block.ndim != 2) throw 'error: each block should be matrix.';
 			if (block.shape[0] != block.shape[1]) throw 'error: each block should be square.';
+			dtype = TypeValidator.upcast(block.dtype, dtype);
 		}
 		
 		var length = 0;
@@ -318,6 +332,158 @@ abstract NdArray(NdArrayData) {
 		}
 		
 		return array;
+	}
+	
+	static public function abs(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.abs(cast a, cast dst);
+		
+		return dst;
+	}
+	
+	static public function min(a:NdArray, b:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
+		
+		Session.manager.min(cast a, cast b, cast dst);
+		
+		return dst;
+	}
+	
+	static public function minScalar(a:NdArray, b:Dynamic):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
+		
+		Session.manager.minScalar(cast a, cast b, cast dst);
+		
+		return dst;
+	}
+	
+	static public function max(a:NdArray, b:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
+		
+		Session.manager.max(cast a, cast b, cast dst);
+		
+		return dst;
+	}
+	
+	static public function maxScalar(a:NdArray, b:Dynamic):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
+		
+		Session.manager.maxScalar(cast a, cast b, cast dst);
+		
+		return dst;
+	}
+	
+	static public function sin(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.sin(cast a, cast dst);
+		
+		return dst;
+	}
+	
+	static public function cos(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.cos(cast a, cast dst);
+		
+		return dst;
+	}
+	
+	static public function tan(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.tan(cast a, cast dst);
+		
+		return dst;
+	}
+	
+	static public function asin(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.asin(cast a, cast dst);
+		
+		return dst;
+	}
+	
+	static public function acos(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.acos(cast a, cast dst);
+		
+		return dst;
+	}
+	
+	static public function atan(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.atan(cast a, cast dst);
+		
+		return dst;
+	}
+	
+	static public function exp(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.exp(cast a, cast dst);
+		
+		return dst;
+	}
+	
+	static public function log(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.log(cast a, cast dst);
+		
+		return dst;
+	}
+	
+	static public function pow(a:NdArray, b:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
+		
+		Session.manager.pow(cast a, cast b, cast dst);
+		
+		return dst;
+	}
+	
+	static public function powScalar(a:NdArray, b:Dynamic):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
+		
+		Session.manager.powScalar(cast a, cast b, cast dst);
+		
+		return dst;
+	}
+	
+	static public function sqrt(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.sqrt(cast a, cast dst);
+		
+		return dst;
+	}
+	
+	static public function round(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.round(cast a, cast dst);
+		
+		return dst;
+	}
+	
+	static public function floor(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.floor(cast a, cast dst);
+		
+		return dst;
+	}
+	
+	static public function ceil(a:NdArray):NdArray {
+		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		
+		Session.manager.ceil(cast a, cast dst);
+		
+		return dst;
 	}
 	
 	static function fromArray(value:Dynamic, ?dtype:NdArrayDataType):NdArray {

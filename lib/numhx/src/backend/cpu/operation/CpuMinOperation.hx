@@ -3,6 +3,7 @@ import backend.cpu.CpuBackend;
 import backend.cpu.CpuNdArrayOperation;
 import buffer.NdArrayBufferId;
 import buffer.NdArrayBufferView;
+import util.MathUtil;
 
 /**
  * ...
@@ -74,7 +75,7 @@ class CpuMinOperation extends CpuNdArrayOperation
 			}];
 		}
 		
-		if (dst.naive) dst.buffer.setValue([for (i in 0...dst.size) dst.buffer.set(i, Math.min(v1[i], v2[i]))]);
+		if (dst.naive) dst.buffer.setValue([for (i in 0...dst.size) MathUtil.min(v1[i], v2[i])]);
 		else {
 			var ndim = dst.ndim;
 			var shape = dst.shape;
@@ -97,7 +98,7 @@ class CpuMinOperation extends CpuNdArrayOperation
 					j %= targetStrides[i];
 				}
 				
-				dst.buffer.set(idx, Math.min(v1[i], v2[i]));
+				dst.buffer.set(idx, MathUtil.min(v1[i], v2[i]));
 			}
 		}
 	}

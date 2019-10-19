@@ -4,6 +4,7 @@ import backend.cpu.CpuNdArrayOperation;
 import buffer.NdArrayBufferId;
 import buffer.NdArrayBufferView;
 import io.Complex;
+import util.MathUtil;
 
 /**
  * ...
@@ -60,7 +61,6 @@ class CpuDotOperation extends CpuNdArrayOperation
 			}
 			
 			var v:Dynamic = 0;
-			
 			for (m in 0...targetSize) {
 				var aIndices = k;
 				aIndices.push(m);
@@ -74,7 +74,7 @@ class CpuDotOperation extends CpuNdArrayOperation
 				for (i in 0...b.ndim) bIdx += b.strides[i] * bIndices[i];
 				bIndices.shift();
 				
-				v += a.buffer.get(aIdx) * b.buffer.get(bIdx);
+				v += MathUtil.mul(a.buffer.get(aIdx), b.buffer.get(bIdx));
 			}
 			
 			var dstIndices = k.concat(l);

@@ -1,5 +1,6 @@
 package backend.cpu.operation;
 import buffer.NdArrayBufferView.NdArrayBufferViewData;
+import util.MathUtil;
 
 /**
  * ...
@@ -45,7 +46,7 @@ class CpuMinScalarOperation extends CpuNdArrayOperation
 			}];
 		}
 		
-		if (dst.naive) dst.buffer.setValue([for (i in 0...dst.size) dst.buffer.set(i, Math.min(v[i], b))]);
+		if (dst.naive) dst.buffer.setValue([for (i in 0...dst.size) MathUtil.min(v[i], b)]);
 		else {
 			var ndim = dst.ndim;
 			var shape = dst.shape;
@@ -68,7 +69,7 @@ class CpuMinScalarOperation extends CpuNdArrayOperation
 					j %= targetStrides[i];
 				}
 				
-				dst.buffer.set(idx, Math.min(v[i], b));
+				dst.buffer.set(idx, MathUtil.min(v[i], b));
 			}
 		}
 	}
