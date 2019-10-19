@@ -23,8 +23,25 @@ class ZGate implements EigenGate extends SingleQubitGate
 		return gate;
 	}
 	
+	public function apply(target:NdArray):NdArray {
+		return switch(exponent) {
+			case 0:
+			{
+				target;
+			}
+			case _:
+			{
+				var oSlice:Slice = '1';
+				
+				target[oSlice] *= Complex.j ^ (2*exponent);
+				
+				target;
+			}
+		}
+	}
+	
 	public function represent():NdArray {
 		var a = Complex.j ^ (2*exponent);
-		return NdArray.diag([Complex.one, a]);
+		return NdArray.diag([1, a]);
 	}
 }

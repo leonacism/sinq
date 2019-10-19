@@ -22,6 +22,33 @@ class HGate implements EigenGate extends SingleQubitGate
 		return gate;
 	}
 	
+	public function apply(target:NdArray):NdArray {
+		return switch(exponent) {
+			case 1:
+			{
+				var zSlice:Slice = '0';
+				var oSlice:Slice = '1';
+				var z = target[zSlice];
+				var o = target[oSlice];
+				
+				target[oSlice] -= target[zSlice];
+				target[oSlice] *= -0.5;
+				target[zSlice] -= target[oSlice];
+				target *= Math.sqrt(2);
+				
+				target;
+			}
+			case 0:
+			{
+				target;
+			}
+			case _:
+			{
+				null;
+			}
+		}
+	}
+	
 	public function represent():NdArray {
 		var j = Complex.j;
 		var a = j ^ exponent;

@@ -22,21 +22,43 @@ class CCXGate implements EigenGate extends ThreeQubitGate
 		return gate;
 	}
 	
+	public function apply(target:NdArray):NdArray {
+		return switch(exponent) {
+			case 1:
+			{
+				var zooSlice:Slice = '6';
+				var oooSlice:Slice = '7';
+				
+				var ooo = target[oooSlice].copy();
+				target[oooSlice] = target[zooSlice];
+				target[zooSlice] = ooo;
+				
+				target;
+			}
+			case 0:
+			{
+				target;
+			}
+			case _:
+			{
+				null;
+			}
+		}
+	}
+	
 	public function represent():NdArray {
-		var zero = Complex.zero;
-		var one = Complex.one;
 		var j = Complex.j;
 		var a = Complex.j ^ exponent;
 		var c = Complex.from(Math.cos(Math.PI / 2 * exponent));
 		var s = Complex.from(Math.sin(Math.PI / 2 * exponent));
 		return NdArray.blockDiag([
-			NdArray.diag([one, one, one, one]),
+			NdArray.diag([1, 1, 1, 1], NdArrayDataType.COMPLEX),
 			NdArray.array([
-				[ one, zero,       zero,       zero],
-				[zero,  one,       zero,       zero],
-				[zero, zero,      a * c, -j * a * s],
-				[zero, zero, -j * a * s,      a * c],
+				[ 1, 0,          0,          0],
+				[ 0, 1,          0,          0],
+				[ 0, 0,      a * c, -j * a * s],
+				[ 0, 0, -j * a * s,      a * c],
 			]),
-		]);
+		], NdArrayDataType.COMPLEX);
 	}
 }

@@ -22,9 +22,23 @@ class CZGate implements EigenGate extends TwoQubitGate
 		return gate;
 	}
 	
+	public function apply(target:NdArray):NdArray {
+		return switch(exponent) {
+			case 0:
+			{
+				target;
+			}
+			case _:
+			{
+				var ooSlice:Slice = '3';
+				target[ooSlice] *= Complex.j ^ (2 * exponent);
+				target;
+			}
+		}
+	}
+	
 	public function represent():NdArray {
-		var one = Complex.one;
 		var a = Complex.j ^ (2*exponent);
-		return NdArray.diag([one, one, one, a]);
+		return NdArray.diag([1, 1, 1, a]);
 	}
 }

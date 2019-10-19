@@ -24,6 +24,12 @@ class GateOperation implements Operation
 		this.qubits = qubits;
 	}
 	
+	public function apply(target:NdArray):NdArray {
+		if (operationKind != OperationKind.Unitary) throw 'error : this operation is not unitary.';
+		var gate:UnitaryGate = cast this.gate;
+		return gate.apply(target);
+	}
+	
 	public function represent():NdArray {
 		if (operationKind != OperationKind.Unitary) throw 'error : this operation is not unitary.';
 		var gate:UnitaryGate = cast this.gate;

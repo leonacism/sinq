@@ -1,6 +1,7 @@
 package operation.gate;
+import io.Complex;
 import operation.gate.feature.EigenGate;
-import operation.gate.feature.SingleQubitGate;
+import operation.gate.feature.TwoQubitGate;
 import operation.gate.feature.UnitaryGate;
 
 
@@ -9,7 +10,7 @@ import operation.gate.feature.UnitaryGate;
  * ...
  * @author leonaci
  */
-class ZZGate implements EigenGate extends SingleQubitGate
+class ZZGate implements EigenGate extends TwoQubitGate
 {
 	public var exponent(default, null):Float;
 	
@@ -22,9 +23,27 @@ class ZZGate implements EigenGate extends SingleQubitGate
 		return gate;
 	}
 	
+	public function apply(target:NdArray):NdArray {
+		return switch(exponent) {
+			case 0:
+			{
+				target;
+			}
+			case _:
+			{
+				var ozSlice:Slice = '1';
+				var zoSlice:Slice = '2';
+				
+				target[ozSlice] *= Complex.j ^ (2 * exponent);
+				target[zoSlice] *= Complex.j ^ (2 * exponent);
+				
+				target;
+			}
+		}
+	}
+	
 	public function represent():NdArray {
-		var one = Complex.one;
 		var a = Complex.j ^ (2*exponent);
-		return NdArray.diag([one, a, a, one]);
+		return NdArray.diag([1, a, a, 1]);
 	}
 }

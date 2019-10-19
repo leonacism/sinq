@@ -23,6 +23,32 @@ class YGate implements EigenGate extends SingleQubitGate
 		return gate;
 	}
 	
+	public function apply(target:NdArray):NdArray {
+		return switch(exponent) {
+			case 1:
+			{
+				var zSlice:Slice = '0';
+				var oSlice:Slice = '1';
+				
+				var z = target[zSlice].copy();
+				
+				target[zSlice] = -target[oSlice];
+				target[oSlice] =  z;
+				target *= Complex.j;
+				
+				target;
+			}
+			case 0:
+			{
+				target;
+			}
+			case _:
+			{
+				null;
+			}
+		}
+	}
+	
 	public function represent():NdArray {
 		var a = Complex.j ^ exponent;
 		var c = Complex.from(Math.cos(Math.PI / 2 * exponent));

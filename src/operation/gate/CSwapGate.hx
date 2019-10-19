@@ -13,18 +13,27 @@ class CSwapGate implements UnitaryGate extends ThreeQubitGate
 	public function new() {
 	}
 	
-	public function represent():NdArray {
-		var zero = Complex.zero;
-		var one = Complex.one;
+	public function apply(target:NdArray):NdArray {
+		var ozoSlice:Slice = '5';
+		var zooSlice:Slice = '6';
 		
+		var ozo = target[ozoSlice].copy();
+		
+		target[ozoSlice] = target[zooSlice];
+		target[zooSlice] = ozo;
+		
+		return target;
+	}
+	
+	public function represent():NdArray {
 		return NdArray.blockDiag([
-			NdArray.diag([one, one, one, one]),
+			NdArray.diag([1, 1, 1, 1]),
 			NdArray.array([
-				[ one, zero, zero, zero],
-				[zero, zero,  one, zero],
-				[zero,  one, zero, zero],
-				[zero, zero, zero,  one],
+				[ 1, 0, 0, 0],
+				[ 0, 0, 1, 0],
+				[ 0, 1, 0, 0],
+				[ 0, 0, 0, 1],
 			]),
-		]);
+		], NdArrayDataType.COMPLEX);
 	}
 }

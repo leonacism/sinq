@@ -20,65 +20,89 @@ class Simulator
 		var stateSize:Int = 1 << numQubits;
 		
 		var initialStates:Map<Qid, Bool> = [for (i in 0...numQubits) qubits[i].id => true];
-		var digitMap:Map<Qid, Int> = [for (i in 0...numQubits) qubits[i].id => numQubits-i-1];
+		var digitMap:Map<Qid, Int> = [for (i in 0...numQubits) qubits[i].id => i];
 		
 		var rawStates:NdArray = NdArray.identity(stateSize, NdArrayDataType.COMPLEX);
-		for (moment in circuit.moments) for(op in moment.operations) {
-			rawStates = resolveByRepresentation(op, rawStates, numQubits, digitMap);
+		for (moment in circuit.moments) for (op in moment.operations) {
+			
+			for (func in [resolveByApplication, resolveByRepresentation]) {
+				rawStates = func(op, rawStates, numQubits, digitMap);
+				if(rawStates != null) break;
+			}
 		}
+		
+		trace(rawStates);
+		
 		var measurement = measure(rawStates, initialStates, qubits, digitMap);
 		return measurement;
 	}
 	
-	// O(2^{3*n})
+	static private function resolveByApplication(op:Operation, states:NdArray, numQubits:Int, digitMap:Map<Qid, Int>):NdArray {
+		var size = 1 << numQubits;
+		var numTargetQubits = op.qubits.length;
+		var numOtherQubits = numQubits - numTargetQubits;
+		
+		var targetDigitMap:Map<Qid, Int> = [for (i in 0...numTargetQubits) op.qubits[i].id => i];
+		
+		var indices:Array<Int> = [for (i in 0...numTargetQubits) digitMap[op.qubits[i].id]];
+		for(id in digitMap.keys()) if(!targetDigitMap.exists(id)) indices.unshift(digitMap[id]);
+		indices.push(indices.length);
+		
+		var shape = [for (i in 0...numQubits) 2];
+		shape.push(size);
+		
+		states = states.reshape(shape);
+		states = states.transpose(indices);
+		
+		states = states.reshape([1 << numOtherQubits, 1 << numTargetQubits, size]);
+		
+		for(i in 0...1<<numOtherQubits) states['$i'] = op.apply(states['$i']);
+		trace(states);
+		states = states.reshape(shape);
+		states = states.transpose([for (i in 0...indices.length) indices.indexOf(i)]);
+		states = states.reshape([size, size]);
+		
+		return states;
+	}
+
 	static private function resolveByRepresentation(op:Operation, states:NdArray, numQubits:Int, digitMap:Map<Qid, Int>):NdArray {
 		var size = 1 << numQubits;
 		var numTargetQubits = op.qubits.length;
-		var numNontargetQubits = numQubits - numTargetQubits;
+		var numOtherQubits = numQubits - numTargetQubits;
 		
-		var targetDigitMap:Map<Qid, Int> = [for (i in 0...numTargetQubits) op.qubits[i].id => numTargetQubits-i-1];
-		var i=numNontargetQubits;
-		var nontargetDigitMap:Map<Qid, Int> = [for (id in digitMap.keys()) if (!targetDigitMap.exists(id)) id => --i];
+		var targetDigitMap:Map<Qid, Int> = [for (i in 0...numTargetQubits) op.qubits[i].id => i];
 		
-		var output:NdArray = NdArray.identity(size, NdArrayDataType.COMPLEX);
+		var indices:Array<Int> = [for (i in 0...numTargetQubits) digitMap[op.qubits[i].id]];
+		for(id in digitMap.keys()) if(!targetDigitMap.exists(id)) indices.unshift(digitMap[id]);
+		indices.push(indices.length);
+		
+		var shape = [for (i in 0...numQubits) 2];
+		shape.push(size);
+		
+		states = states.reshape(shape);
+		states = states.transpose(indices);
+		
+		states = states.reshape([1 << numOtherQubits, 1 << numTargetQubits, size]);
 		
 		var operation:NdArray = op.represent();
-		for(i in 0...size) {
-			var b = 0, m = 0;
-			var t = i;
-			for (id in digitMap.keys()) {
-				var r = 1 << digitMap[id];
-				var d = Std.int(t / r);
-				if(d % 2 == 1) targetDigitMap.exists(id)? m += 1 << targetDigitMap[id] : b += 1 << nontargetDigitMap[id];
-				t %= r;
-			}
-			
-			var s = 0;
-			for (id in targetDigitMap.keys()) if (targetDigitMap[id] == 0) {
-				s = 1 << digitMap[id];
-				break;
-			}
-			
-			var e = b + (1 << numTargetQubits) * s;
-			
-			output['$i'] = NdArray.dot(operation, states['$b:$e:$s'])['$m'];
-		}
-		return output;
+		for(i in 0...1<<numOtherQubits) states['$i'] = NdArray.dot(operation, states['$i']);
+		
+		states = states.reshape(shape);
+		states = states.transpose([for (i in 0...indices.length) indices.indexOf(i)]);
+		states = states.reshape([size, size]);
+		return states;
 	}
 	
 	static private function measure(states:NdArray, initialStates:Map<Qid,Bool>, qubits:Array<Qubit>, digitMap:Map<Qid, Int>):Array<Bool> {
 		var j:Int = 0;
 		for (id in initialStates.keys()) if (initialStates[id]) j += 1 << digitMap[id];
 		
-		var dist = [for (l in 0...states.shape[0]) l => {
-			var value:Complex = states[[l, j]];
-			value.norm2();
-		}];
+		var dist = [for (i in 0...states.shape[0]) (states[[i, j]]:Complex).norm2()];
 		//trace(dist+'');
 		
-		var result:Int = choice(dist);
+		var selected:Int = choice(dist);
 		var measurement:Array<Bool> = [for (i in 0...qubits.length)
-			switch(Std.int(result / (1 << digitMap[qubits[i].id])) % 2) {
+			switch(Std.int(selected / (1 << digitMap[qubits[qubits.length-i-1].id])) % 2) {
 				case 1: true;
 				case 0: false;
 				case _: throw '!?';
@@ -88,13 +112,13 @@ class Simulator
 		return measurement;
 	}
 	
-	static private function choice(dist:Map<Int, Float>):Int {
+	static private function choice(dist:Array<Float>):Int {
 		var sum = 0.0;
 		for (p in dist) sum += p;
-		if (sum != 1.0) for (i in dist.keys()) dist[i] /= sum;
+		if (sum != 1.0) for (i in 0...dist.length) dist[i] /= sum;
 		
 		var r = Math.random();
-		for(i in dist.keys()) if((r-=dist[i])<0) return i;
+		for(i in 0...dist.length) if((r-=dist[i])<0) return i;
 		return throw '!?';
 	}
 }
