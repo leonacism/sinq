@@ -74,14 +74,14 @@ class CpuDotOperation extends CpuNdArrayOperation
 				for (i in 0...b.ndim) bIdx += b.strides[i] * bIndices[i];
 				bIndices.shift();
 				
-				v += MathUtil.mul(a.buffer.get(aIdx), b.buffer.get(bIdx));
+				v = MathUtil.add(v, MathUtil.mul(a.buffer.get(aIdx), b.buffer.get(bIdx)));
 			}
 			
 			var dstIndices = k.concat(l);
 			var dstIdx = 0;
 			for (i in 0...dst.ndim) dstIdx += dst.strides[i] * dstIndices[i];
 			
-			dst.buffer.set(dstIdx, TypeValidator.cast_(v, dst.buffer.dtype));
+			dst.buffer.set(dstIdx, v);
 		}
 	}
 }

@@ -19,7 +19,7 @@ class YGate implements EigenGate extends SingleQubitGate
 	}
 	
 	public function pow(exponent:Float):UnitaryGate {
-		var gate:UnitaryGate = new YGate(this.exponent + exponent);
+		var gate:UnitaryGate = new YGate(this.exponent * exponent);
 		return gate;
 	}
 	
@@ -57,5 +57,9 @@ class YGate implements EigenGate extends SingleQubitGate
 			[a * c, -a * s],
 			[a * s,  a * c],
 		]);
+	}
+	
+	public function decompose(qubit:Array<Qubit>):Array<Operation> {
+		return null;
 	}
 }

@@ -12,29 +12,36 @@ import operation.Operation;
  */
 class Simulator
 {
-	static public function run(circuit:Circuit):Array<Bool> {
-		Session.setBackend(BackendKind.Cpu);
+	static public function run(circuit:Circuit, ?backend:BackendKind=BackendKind.Cpu):Array<Bool> {
+		NdArraySession.setBackend(backend);
 		
 		var qubits:Array<Qubit> = circuit.qubits;
 		var numQubits:Int = qubits.length;
-		var stateSize:Int = 1 << numQubits;
-		
-		var initialStates:Map<Qid, Bool> = [for (i in 0...numQubits) qubits[i].id => true];
 		var digitMap:Map<Qid, Int> = [for (i in 0...numQubits) qubits[i].id => i];
 		
+		var initialStates:Map<Qid, Bool> = [for (i in 0...numQubits) qubits[i].id => true];
+		var stateSize:Int = 1 << numQubits;
+		
+		var ops = Lambda.flatten([for (moment in circuit.moments) moment.operations]);
 		var rawStates:NdArray = NdArray.identity(stateSize, NdArrayDataType.COMPLEX);
-		for (moment in circuit.moments) for (op in moment.operations) {
-			
-			for (func in [resolveByApplication, resolveByRepresentation]) {
-				rawStates = func(op, rawStates, numQubits, digitMap);
-				if(rawStates != null) break;
-			}
-		}
+		
+		applyUnitary(ops, rawStates, numQubits, digitMap);
 		
 		trace(rawStates);
 		
 		var measurement = measure(rawStates, initialStates, qubits, digitMap);
 		return measurement;
+	}
+	
+	static private function applyUnitary(ops:Array<Operation>, states:NdArray, numQubits:Int, digitMap:Map<Qid, Int>):Void {
+		for (op in ops) {
+			for (func in [resolveByDecomposition, resolveByApplication, resolveByRepresentation]) {
+				var result = func(op, states, numQubits, digitMap);
+				if (result == null) continue;
+				states['...'] = result;
+				break;
+			}
+		}
 	}
 	
 	static private function resolveByApplication(op:Operation, states:NdArray, numQubits:Int, digitMap:Map<Qid, Int>):NdArray {
@@ -56,7 +63,11 @@ class Simulator
 		
 		states = states.reshape([1 << numOtherQubits, 1 << numTargetQubits, size]);
 		
-		for(i in 0...1<<numOtherQubits) states['$i'] = op.apply(states['$i']);
+		for (i in 0...1 << numOtherQubits) {
+			var result = op.apply(states['$i']);
+			if (result == null) return null;
+			states['$i'] = result;
+		}
 		trace(states);
 		states = states.reshape(shape);
 		states = states.transpose([for (i in 0...indices.length) indices.indexOf(i)]);
@@ -90,6 +101,13 @@ class Simulator
 		states = states.reshape(shape);
 		states = states.transpose([for (i in 0...indices.length) indices.indexOf(i)]);
 		states = states.reshape([size, size]);
+		return states;
+	}
+	
+	static private function resolveByDecomposition(op:Operation, states:NdArray, numQubits:Int, digitMap:Map<Qid, Int>):NdArray {
+		var ops = op.decompose();
+		if (ops == null) return null;
+		applyUnitary(ops, states, numQubits, digitMap);
 		return states;
 	}
 	

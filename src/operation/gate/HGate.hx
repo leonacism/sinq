@@ -18,7 +18,7 @@ class HGate implements EigenGate extends SingleQubitGate
 	}
 	
 	public function pow(exponent:Float):UnitaryGate {
-		var gate:UnitaryGate = new HGate(this.exponent + exponent);
+		var gate:UnitaryGate = new HGate(this.exponent * exponent);
 		return gate;
 	}
 	
@@ -59,5 +59,14 @@ class HGate implements EigenGate extends SingleQubitGate
 			[ a * (c - j * s * n),      -j * a * s * n ],
 			[     -j * a * s * n ,  a * (c + j * s * n)],
 		]);
+	}
+	
+	public function decompose(qubit:Array<Qubit>):Array<Operation> {
+		var q = qubit[0];
+		return [
+			new YGate(    0.25).on([q]),
+			new XGate(exponent).on([q]),
+			new YGate(   -0.25).on([q]),
+		];
 	}
 }

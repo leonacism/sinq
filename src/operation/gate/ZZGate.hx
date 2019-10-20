@@ -19,7 +19,7 @@ class ZZGate implements EigenGate extends TwoQubitGate
 	}
 	
 	public function pow(exponent:Float):UnitaryGate {
-		var gate:UnitaryGate = new ZZGate(this.exponent + exponent);
+		var gate:UnitaryGate = new ZZGate(this.exponent * exponent);
 		return gate;
 	}
 	
@@ -45,5 +45,9 @@ class ZZGate implements EigenGate extends TwoQubitGate
 	public function represent():NdArray {
 		var a = Complex.j ^ (2*exponent);
 		return NdArray.diag([1, a, a, 1]);
+	}
+	
+	public function decompose(qubit:Array<Qubit>):Array<Operation> {
+		return null;
 	}
 }

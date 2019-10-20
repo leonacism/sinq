@@ -9,7 +9,7 @@ import buffer.NdArrayBufferView;
  * ...
  * @author leonaci
  */
-class Session
+class NdArraySession
 {
 	@:allow(NdArray) static private var manager(get, null):NdArrayBufferManager;
 	static function get_manager():NdArrayBufferManager {

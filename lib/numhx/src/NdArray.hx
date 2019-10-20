@@ -6,6 +6,8 @@ import buffer.NdArrayBufferId;
 import buffer.NdArrayBufferManager;
 import buffer.NdArrayBufferView;
 import io.Complex;
+import util.ShapeValidator;
+import util.TypeValidator;
 
 /**
  * ...
@@ -66,7 +68,7 @@ abstract NdArray(NdArrayData) {
 		var dummyDst:NdArray = cast this;
 		var dst:NdArray = cast view.slice(k);
 		
-		Session.manager.assign(cast a, cast dummyDst, cast dst);
+		NdArraySession.manager.assign(cast a, cast dummyDst, cast dst);
 		
 		return dummyDst;
 	}
@@ -76,16 +78,16 @@ abstract NdArray(NdArrayData) {
 		var dummyDst:NdArray = cast this;
 		var dst:NdArray = get(k);
 		
-		Session.manager.assignScalar(cast a, cast dummyDst, cast dst);
+		NdArraySession.manager.assignScalar(cast a, cast dummyDst, cast dst);
 		
 		return dummyDst;
 	}
 	
 	@:op(A + B)
 	static public function add(a:NdArray, b:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
+		var dst = new NdArray(NdArraySession.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
 		
-		Session.manager.add(cast a, cast b, cast dst);
+		NdArraySession.manager.add(cast a, cast b, cast dst);
 		
 		return dst;
 	}
@@ -95,16 +97,16 @@ abstract NdArray(NdArrayData) {
 		ShapeValidator.validateBinOpShape(a, b);
 		TypeValidator.upcast(a.dtype, b.dtype);
 		
-		Session.manager.add(cast a, cast b, cast a);
+		NdArraySession.manager.add(cast a, cast b, cast a);
 		
 		return a;
 	}
 	
 	@:commutative @:op(A + B)
 	static public function addScalar(a:NdArray, b:Dynamic):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
+		var dst = new NdArray(NdArraySession.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
 		
-		Session.manager.addScalar(cast a, cast b, cast dst);
+		NdArraySession.manager.addScalar(cast a, cast b, cast dst);
 		
 		return dst;
 	}
@@ -113,16 +115,16 @@ abstract NdArray(NdArrayData) {
 	static public function addScalarAssign(a:NdArray, b:Dynamic):NdArray {
 		TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b));
 		
-		Session.manager.addScalar(cast a, cast b, cast a);
+		NdArraySession.manager.addScalar(cast a, cast b, cast a);
 		
 		return a;
 	}
 	
 	@:op(A - B)
 	static public function sub(a:NdArray, b:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
+		var dst = new NdArray(NdArraySession.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
 		
-		Session.manager.sub(cast a, cast b, cast dst);
+		NdArraySession.manager.sub(cast a, cast b, cast dst);
 		
 		return dst;
 	}
@@ -132,16 +134,16 @@ abstract NdArray(NdArrayData) {
 		ShapeValidator.validateBinOpShape(a, b);
 		TypeValidator.upcast(a.dtype, b.dtype);
 		
-		Session.manager.sub(cast a, cast b, cast a);
+		NdArraySession.manager.sub(cast a, cast b, cast a);
 		
 		return a;
 	}
 	
 	@:op(A - B)
 	static public function subScalar(a:NdArray, b:Dynamic):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
+		var dst = new NdArray(NdArraySession.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
 		
-		Session.manager.subScalar(cast a, cast b, cast dst);
+		NdArraySession.manager.subScalar(cast a, cast b, cast dst);
 		
 		return dst;
 	}
@@ -150,16 +152,16 @@ abstract NdArray(NdArrayData) {
 	static public function subScalarAssign(a:NdArray, b:Dynamic):NdArray {
 		TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b));
 		
-		Session.manager.subScalar(cast a, cast b, cast a);
+		NdArraySession.manager.subScalar(cast a, cast b, cast a);
 		
 		return a;
 	}
 	
 	@:op(A * B)
 	static public function mul(a:NdArray, b:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
+		var dst = new NdArray(NdArraySession.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
 		
-		Session.manager.mul(cast a, cast b, cast dst);
+		NdArraySession.manager.mul(cast a, cast b, cast dst);
 		
 		return dst;
 	}
@@ -169,16 +171,16 @@ abstract NdArray(NdArrayData) {
 		ShapeValidator.validateBinOpShape(a, b);
 		TypeValidator.upcast(a.dtype, b.dtype);
 		
-		Session.manager.mul(cast a, cast b, cast a);
+		NdArraySession.manager.mul(cast a, cast b, cast a);
 		
 		return a;
 	}
 	
 	@:commutative @:op(A * B)
 	static public function mulScalar(a:NdArray, b:Dynamic):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
+		var dst = new NdArray(NdArraySession.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
 		
-		Session.manager.mulScalar(cast a, cast b, cast dst);
+		NdArraySession.manager.mulScalar(cast a, cast b, cast dst);
 		
 		return dst;
 	}
@@ -187,7 +189,7 @@ abstract NdArray(NdArrayData) {
 	static public function mulScalarAssign(a:NdArray, b:Dynamic):NdArray {
 		TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b));
 		
-		Session.manager.mulScalar(cast a, cast b, cast a);
+		NdArraySession.manager.mulScalar(cast a, cast b, cast a);
 		
 		return a;
 	}
@@ -195,9 +197,9 @@ abstract NdArray(NdArrayData) {
 	
 	@:op(A / B)
 	static public function div(a:NdArray, b:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
+		var dst = new NdArray(NdArraySession.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
 		
-		Session.manager.div(cast a, cast b, cast dst);
+		NdArraySession.manager.div(cast a, cast b, cast dst);
 		
 		return dst;
 	}
@@ -207,16 +209,16 @@ abstract NdArray(NdArrayData) {
 		ShapeValidator.validateBinOpShape(a, b);
 		TypeValidator.upcast(a.dtype, b.dtype);
 		
-		Session.manager.div(cast a, cast b, cast a);
+		NdArraySession.manager.div(cast a, cast b, cast a);
 		
 		return a;
 	}
 	
 	@:op(A / B)
 	static public function divScalar(a:NdArray, b:Dynamic):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
+		var dst = new NdArray(NdArraySession.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
 		
-		Session.manager.divScalar(cast a, cast b, cast dst);
+		NdArraySession.manager.divScalar(cast a, cast b, cast dst);
 		
 		return dst;
 	}
@@ -225,24 +227,24 @@ abstract NdArray(NdArrayData) {
 	static public function divScalarAssign(a:NdArray, b:Dynamic):NdArray {
 		TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b));
 		
-		Session.manager.divScalar(cast a, cast b, cast a);
+		NdArraySession.manager.divScalar(cast a, cast b, cast a);
 		
 		return a;
 	}
 	
 	@:op(-A)
 	static public function negate(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.mulScalar(cast a, -1, cast dst);
+		NdArraySession.manager.mulScalar(cast a, -1, cast dst);
 		
 		return dst;
 	}
 	
 	static public function dot(a:NdArray, b:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, ShapeValidator.validateDotShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
+		var dst = new NdArray(NdArraySession.manager, ShapeValidator.validateDotShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
 		
-		Session.manager.dot(cast a, cast b, cast dst);
+		NdArraySession.manager.dot(cast a, cast b, cast dst);
 		
 		return dst;
 	}
@@ -335,153 +337,153 @@ abstract NdArray(NdArrayData) {
 	}
 	
 	static public function abs(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.abs(cast a, cast dst);
+		NdArraySession.manager.abs(cast a, cast dst);
 		
 		return dst;
 	}
 	
 	static public function min(a:NdArray, b:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
+		var dst = new NdArray(NdArraySession.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
 		
-		Session.manager.min(cast a, cast b, cast dst);
+		NdArraySession.manager.min(cast a, cast b, cast dst);
 		
 		return dst;
 	}
 	
 	static public function minScalar(a:NdArray, b:Dynamic):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
+		var dst = new NdArray(NdArraySession.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
 		
-		Session.manager.minScalar(cast a, cast b, cast dst);
+		NdArraySession.manager.minScalar(cast a, cast b, cast dst);
 		
 		return dst;
 	}
 	
 	static public function max(a:NdArray, b:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
+		var dst = new NdArray(NdArraySession.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
 		
-		Session.manager.max(cast a, cast b, cast dst);
+		NdArraySession.manager.max(cast a, cast b, cast dst);
 		
 		return dst;
 	}
 	
 	static public function maxScalar(a:NdArray, b:Dynamic):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
+		var dst = new NdArray(NdArraySession.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
 		
-		Session.manager.maxScalar(cast a, cast b, cast dst);
+		NdArraySession.manager.maxScalar(cast a, cast b, cast dst);
 		
 		return dst;
 	}
 	
 	static public function sin(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.sin(cast a, cast dst);
+		NdArraySession.manager.sin(cast a, cast dst);
 		
 		return dst;
 	}
 	
 	static public function cos(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.cos(cast a, cast dst);
+		NdArraySession.manager.cos(cast a, cast dst);
 		
 		return dst;
 	}
 	
 	static public function tan(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.tan(cast a, cast dst);
+		NdArraySession.manager.tan(cast a, cast dst);
 		
 		return dst;
 	}
 	
 	static public function asin(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.asin(cast a, cast dst);
+		NdArraySession.manager.asin(cast a, cast dst);
 		
 		return dst;
 	}
 	
 	static public function acos(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.acos(cast a, cast dst);
+		NdArraySession.manager.acos(cast a, cast dst);
 		
 		return dst;
 	}
 	
 	static public function atan(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.atan(cast a, cast dst);
+		NdArraySession.manager.atan(cast a, cast dst);
 		
 		return dst;
 	}
 	
 	static public function exp(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.exp(cast a, cast dst);
+		NdArraySession.manager.exp(cast a, cast dst);
 		
 		return dst;
 	}
 	
 	static public function log(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.log(cast a, cast dst);
+		NdArraySession.manager.log(cast a, cast dst);
 		
 		return dst;
 	}
 	
 	static public function pow(a:NdArray, b:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
+		var dst = new NdArray(NdArraySession.manager, ShapeValidator.validateBinOpShape(a, b), TypeValidator.upcast(a.dtype, b.dtype));
 		
-		Session.manager.pow(cast a, cast b, cast dst);
+		NdArraySession.manager.pow(cast a, cast b, cast dst);
 		
 		return dst;
 	}
 	
 	static public function powScalar(a:NdArray, b:Dynamic):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
+		var dst = new NdArray(NdArraySession.manager, a.shape, TypeValidator.upcast(a.dtype, TypeValidator.getDtype(b)));
 		
-		Session.manager.powScalar(cast a, cast b, cast dst);
+		NdArraySession.manager.powScalar(cast a, cast b, cast dst);
 		
 		return dst;
 	}
 	
 	static public function sqrt(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.sqrt(cast a, cast dst);
+		NdArraySession.manager.sqrt(cast a, cast dst);
 		
 		return dst;
 	}
 	
 	static public function round(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.round(cast a, cast dst);
+		NdArraySession.manager.round(cast a, cast dst);
 		
 		return dst;
 	}
 	
 	static public function floor(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.floor(cast a, cast dst);
+		NdArraySession.manager.floor(cast a, cast dst);
 		
 		return dst;
 	}
 	
 	static public function ceil(a:NdArray):NdArray {
-		var dst = new NdArray(Session.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
 		
-		Session.manager.ceil(cast a, cast dst);
+		NdArraySession.manager.ceil(cast a, cast dst);
 		
 		return dst;
 	}
@@ -491,7 +493,7 @@ abstract NdArray(NdArrayData) {
 		var dtype = TypeValidator.validateType(value, dtype);
 		var flatten = TypeValidator.flatten(value, dtype);
 		
-		var array = new NdArray(Session.manager, shape, dtype);
+		var array = new NdArray(NdArraySession.manager, shape, dtype);
 		
 		//var view:NdArrayBufferView = cast array;
 		array.data.setValue(flatten);

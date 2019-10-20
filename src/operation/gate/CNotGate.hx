@@ -18,7 +18,7 @@ class CNotGate implements EigenGate extends TwoQubitGate
 	}
 	
 	public function pow(exponent:Float):UnitaryGate {
-		var gate:UnitaryGate = new CNotGate(this.exponent + exponent);
+		var gate:UnitaryGate = new CNotGate(this.exponent * exponent);
 		return gate;
 	}
 	
@@ -58,5 +58,16 @@ class CNotGate implements EigenGate extends TwoQubitGate
 			[ 0, 0,      a * c, -j * a * s],
 			[ 0, 0, -j * a * s,      a * c],
 		]);
+	}
+	
+	public function decompose(qubit:Array<Qubit>):Array<Operation> {
+		var c = qubit[0];
+		var t = qubit[1];
+		
+		return [
+			new  YGate(    -0.5).on([  t]),
+			new CZGate(exponent).on([c,t]),
+			new  YGate(     0.5).on([  t]),
+		];
 	}
 }

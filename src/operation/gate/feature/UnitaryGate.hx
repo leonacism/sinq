@@ -11,4 +11,7 @@ interface UnitaryGate extends Gate
 	
 	/** provides an unitary matrix representation corresponding the gate.**/
 	function represent():NdArray;
+	
+	/** provides a decomposition of more elementally operations*/
+	function decompose(qubit:Array<Qubit>):Array<Operation>;
 }

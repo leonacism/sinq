@@ -36,6 +36,12 @@ class GateOperation implements Operation
 		return gate.represent();
 	}
 	
+	public function decompose():Array<Operation> {
+		if (operationKind != OperationKind.Unitary) throw 'error : this operation is not unitary.';
+		var gate:UnitaryGate = cast this.gate;
+		return gate.decompose(qubits);
+	}
+	
 	public function keys():Iterator<Qid> {
 		return [for (q in qubits) q.id].iterator();
 	}

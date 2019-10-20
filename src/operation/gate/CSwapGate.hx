@@ -36,4 +36,40 @@ class CSwapGate implements UnitaryGate extends ThreeQubitGate
 			]),
 		], NdArrayDataType.COMPLEX);
 	}
+	
+	public function decompose(qubit:Array<Qubit>):Array<Operation> {
+		var c = qubit[0];
+		var a = qubit[1];
+		var b = qubit[2];
+		
+		var cnot = new CNotGate();
+		var x = new XGate();
+		var y = new YGate();
+		var t = new ZGate(0.25);
+		var s = new ZGate(0.5);
+		
+		return [
+			cnot          .on([b,a]),
+			y   .pow(-0.5).on([b  ]),
+			t             .on([c  ]),
+			t             .on([a  ]),
+			t             .on([b  ]),
+			cnot          .on([c,a]),
+			cnot          .on([a,b]),
+			t   .pow(-1  ).on([a  ]),
+			t             .on([b  ]),
+			cnot          .on([c,a]),
+			cnot          .on([a,b]),
+			t   .pow(-1  ).on([b  ]),
+			cnot          .on([c,a]),
+			cnot          .on([a,b]),
+			t   .pow(-1  ).on([b  ]),
+			x   .pow( 0.5).on([a  ]),
+			cnot          .on([c,a]),
+			cnot          .on([a,b]),
+			s             .on([b  ]),
+			x   .pow( 0.5).on([a  ]),
+			x   .pow(-0.5).on([b  ]),
+		];
+	}
 }

@@ -11,11 +11,19 @@ class IComplex {
 	public inline function new() {}
 	
 	public function toString():String {
-		return switch[this.re, this.im] {
-			case [a, b] if(Math.abs(a) < 1e-10 && Math.abs(b) < 1e-10): '0';
-			case [a, _] if(Math.abs(a) < 1e-10): 'j*${this.im}';
-			case [_, b] if(Math.abs(b) < 1e-10): '${this.re}';
-			case [_, _]: '${this.re} + j*${this.im}';
+		var d = 100000;
+		var re = Math.round(this.re * d) / d;
+		var im = Math.round(this.im * d) / d;
+		return switch[re, im] {
+			case [0, 0] : '0';
+			case [0, im] if(im<0): '- ${-im}';
+			case [0, _] : '$im*j';
+			case [re, 0] if(re<0): '$re';
+			case [_, 0] : '$re';
+			case [re, im] if(re<0 && im<0): '- ${-re} - j*${-im}';
+			case [re, _] if(re<0): '- ${-re} + j*$im';
+			case [_, im] if(im<0): '$re - j*${-im}';
+			case [_, _] : '$re + j*$im';
 		}
 	}
 }

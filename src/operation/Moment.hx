@@ -20,9 +20,7 @@ class Moment
 	}
 	
 	public function addOperation(op:Operation):Void {
-		var duplicated = false;
-		for (id in op.keys()) duplicated = duplicated || affected.indexOf(id) != -1;
-		if (duplicated) throw 'error : The qubit to operate on is duplicated.';
+		for (id in op.keys()) if(affected.indexOf(id) != -1) throw 'error : The qubit to operate on is duplicated.';
 		
 		operations.push(op);
 		for (q in op.qubits) {

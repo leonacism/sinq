@@ -19,7 +19,7 @@ class SwapGate implements EigenGate extends TwoQubitGate
 	}
 	
 	public function pow(exponent:Float):UnitaryGate {
-		var gate:UnitaryGate = new SwapGate(this.exponent + exponent);
+		var gate:UnitaryGate = new SwapGate(this.exponent * exponent);
 		return gate;
 	}
 	
@@ -61,5 +61,18 @@ class SwapGate implements EigenGate extends TwoQubitGate
 			[ 0, -j * a * s,      a * c, 0],
 			[ 0,          0,          0, 1],
 		]);
+	}
+	
+	public function decompose(qubit:Array<Qubit>):Array<Operation> {
+		var a = qubit[0];
+		var b = qubit[1];
+		
+		var cnot = new CNotGate();
+		
+		return [
+			cnot.on([a, b]),
+			cnot.pow(exponent).on([b, a]),
+			cnot.on([a, b]),
+		];
 	}
 }

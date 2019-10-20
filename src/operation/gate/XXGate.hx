@@ -19,7 +19,7 @@ class XXGate implements EigenGate extends TwoQubitGate
 	}
 	
 	public function pow(exponent:Float):UnitaryGate {
-		var gate:UnitaryGate = new XXGate(this.exponent + exponent);
+		var gate:UnitaryGate = new XXGate(this.exponent * exponent);
 		return gate;
 	}
 	
@@ -66,5 +66,9 @@ class XXGate implements EigenGate extends TwoQubitGate
 			[         0, -j * a * s,      a * c,          0],
 			[-j * a * s,          0,          0,      a * c],
 		]);
+	}
+	
+	public function decompose(qubit:Array<Qubit>):Array<Operation> {
+		return null;
 	}
 }
