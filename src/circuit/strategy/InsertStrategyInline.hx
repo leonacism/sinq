@@ -6,9 +6,11 @@ import operation.Operation;
  * ...
  * @author leonaci
  */
-class InsertStrategyInline
+class InsertStrategyInline implements InsertStrategy
 {
-	static public function insert(moments:Array<Moment>, operations:Array<Operation>):Void {
+	public function new() {}
+	
+	public function insert(moments:Array<Moment>, operations:Array<Operation>):Void {
 		var begin = 0;
 		
 		if (moments.length == 0) {

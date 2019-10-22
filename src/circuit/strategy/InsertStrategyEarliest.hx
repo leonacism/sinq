@@ -6,9 +6,11 @@ import operation.Operation;
  * ...
  * @author leonaci
  */
-class InsertStrategyEarliest
+class InsertStrategyEarliest implements InsertStrategy
 {
-	static public function insert(moments:Array<Moment>, operations:Array<Operation>):Void {
+	public function new() {}
+	
+	public function insert(moments:Array<Moment>, operations:Array<Operation>):Void {
 		for (op in operations) {
 			var touched = false;
 			

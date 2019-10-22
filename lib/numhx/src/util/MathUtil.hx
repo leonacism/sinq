@@ -61,7 +61,7 @@ class MathUtil
 		
 		return switch(dtype) {
 			case NdArrayDataType.FLOAT | NdArrayDataType.INT: Math.abs(a);
-			case NdArrayDataType.COMPLEX: Complex.fromComponents(Math.sqrt(a.re * a.re + a.im * a.im), 0);
+			case NdArrayDataType.COMPLEX: Math.sqrt(a.re * a.re + a.im * a.im);
 			case NdArrayDataType.BOOL: a;
 		}
 	}
@@ -188,14 +188,12 @@ class MathUtil
 		}
 	}
 	
-	static public function pow(a:Dynamic, b:Dynamic):Dynamic {
-		var dtype = TypeValidator.upcast(TypeValidator.getDtype(a), TypeValidator.getDtype(b));
-		var a:Dynamic = TypeValidator.cast_(a, dtype);
-		var b:Dynamic = TypeValidator.cast_(b, dtype);
+	static public function pow(v:Dynamic, exp:Float):Dynamic {
+		var dtype = TypeValidator.getDtype(v);
 		
 		return switch(dtype) {
-			case NdArrayDataType.FLOAT: Math.pow(a, b);
-			//case NdArrayDataType.COMPLEX:
+			case NdArrayDataType.FLOAT: Math.pow(v, exp);
+			case NdArrayDataType.COMPLEX: Complex.pow(v, exp);
 			case _: throw 'error: invalid operation.';
 		}
 	}

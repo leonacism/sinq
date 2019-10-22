@@ -11,5 +11,6 @@ interface Operation
 	function apply(target:NdArray):NdArray;
 	function represent():NdArray;
 	function decompose():Array<Operation>;
+	function channel():Array<NdArray>;
 	function keys():Iterator<Qid>;
 }

@@ -83,8 +83,8 @@ abstract Complex(IComplex) {
 	}
 	
 	@:op(A^B)
-	static public function pow(c:Complex, a:Float):Complex {
-		return Complex.fromPolar(Math.pow(c.re * c.re + c.im * c.im, 0.5 * a), Math.atan2(c.im, c.re) * a);
+	static public function pow(c:Complex, exp:Float):Complex {
+		return Complex.fromPolar(Math.pow(c.re * c.re + c.im * c.im, 0.5 * exp), Math.atan2(c.im, c.re) * exp);
 	}
 	
 	@:op(-A)
@@ -106,10 +106,6 @@ abstract Complex(IComplex) {
 	
 	@:from static public function from(a:Float):Complex {
 		return new Complex(a, 0);
-	}
-	
-	public function norm2():Float {
-		return this.re * this.re + this.im * this.im;
 	}
 	
 	public function toString():String {

@@ -57,8 +57,16 @@ abstract NdArray(NdArrayData) {
 	@:op([]) public function getValue(k:Array<Int>):Dynamic {
 		if (k.length != ndim) throw 'error: key length unmatches ndarray dim.';
 		
+		var targetStrides = [];
+		var c = 1;
+		targetStrides.unshift(c);
+		for (i in 1...ndim) {
+			c *= shape[ndim-i-1];
+			targetStrides.unshift(c);
+		}
+		
 		var idx = 0;
-		for (i in 0...ndim) idx += strides[i] * k[i];
+		for (i in 0...ndim) idx += targetStrides[i] * k[i];
 		
 		return cast this.get(idx);
 	}
@@ -272,7 +280,15 @@ abstract NdArray(NdArrayData) {
 		return NdArray.fromArray(value, dtype);
 	}
 	
-	static public function arange(arg1:Dynamic, ?arg2:Dynamic, ?arg3:Dynamic, ?dtype:NdArrayDataType):NdArray {
+	static public function zeros(size:Int, ?dtype:NdArrayDataType):NdArray {
+		return NdArray.fromArray([for(i in 0...size) 0], dtype);
+	}
+	
+	static public function ones(size:Int, ?dtype:NdArrayDataType):NdArray {
+		return NdArray.fromArray([for(i in 0...size) 1], dtype);
+	}
+	
+	static public function arange(arg1:Int, ?arg2:Int, ?arg3:Int, ?dtype:NdArrayDataType):NdArray {
 		var array = [];
 		var begin:Int, end:Int, stride:Int;
 		
@@ -337,7 +353,7 @@ abstract NdArray(NdArrayData) {
 	}
 	
 	static public function abs(a:NdArray):NdArray {
-		var dst = new NdArray(NdArraySession.manager, a.shape, a.dtype);
+		var dst = new NdArray(NdArraySession.manager, a.shape, NdArrayDataType.FLOAT);
 		
 		NdArraySession.manager.abs(cast a, cast dst);
 		

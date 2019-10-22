@@ -4,7 +4,7 @@ import operation.GateOperation;
 /**
  * @author leonaci
  */
-interface Gate 
+interface Gate
 {
 	var numQubits(get, null):Int;
 	private function get_numQubits():Int;

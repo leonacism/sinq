@@ -1,4 +1,5 @@
 package circuit;
+import circuit.strategy.InsertStrategy;
 import circuit.strategy.InsertStrategyEarliest;
 import circuit.strategy.InsertStrategyInline;
 import circuit.strategy.InsertStrategyKind;
@@ -25,12 +26,14 @@ class Circuit
 	}
 	
 	public function append(operations:Array<Operation>, ?strategyKind:InsertStrategyKind):Circuit {
-		switch(strategyKind!=null? strategyKind : this.strategyKind) {
-			case InsertStrategyKind.Earliest: InsertStrategyEarliest.insert(moments, operations);
-			case InsertStrategyKind.New: InsertStrategyNew.insert(moments, operations);
-			case InsertStrategyKind.Inline: InsertStrategyInline.insert(moments, operations);
-			case InsertStrategyKind.NewThenInline: InsertStrategyNewThenInline.insert(moments, operations);
+		var strategy:InsertStrategy = switch(strategyKind!=null? strategyKind : this.strategyKind) {
+			case InsertStrategyKind.Earliest: new InsertStrategyEarliest();
+			case InsertStrategyKind.New: new InsertStrategyNew();
+			case InsertStrategyKind.Inline: new InsertStrategyInline();
+			case InsertStrategyKind.NewThenInline: new InsertStrategyNewThenInline();
 		}
+		
+		strategy.insert(moments, operations);
 		
 		return this;
 	}

@@ -6,4 +6,5 @@ package operation;
 enum OperationKind 
 {
 	Unitary;
+	Measurement;
 }

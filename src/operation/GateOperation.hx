@@ -1,5 +1,6 @@
 package operation;
 import operation.gate.Gate;
+import operation.gate.channel.Measurement;
 import operation.gate.feature.UnitaryGate;
 
 
@@ -13,9 +14,10 @@ class GateOperation implements Operation
 	public var qubits(default, null):Array<Qubit>;
 	public var operationKind(get, null):OperationKind;
 	private function get_operationKind():OperationKind {
-		return if(Std.is(gate, UnitaryGate)) OperationKind.Unitary;
-			
-		else throw 'error: unexpected operation kind!';
+		return
+			if(Std.is(gate, UnitaryGate)) OperationKind.Unitary;
+			else if (Std.is(gate, Measurement)) OperationKind.Measurement;
+			else throw 'error: unexpected operation kind!';
 	}
 	
 	public function new(gate:Gate, qubits:Array<Qubit>) 
@@ -40,6 +42,12 @@ class GateOperation implements Operation
 		if (operationKind != OperationKind.Unitary) throw 'error : this operation is not unitary.';
 		var gate:UnitaryGate = cast this.gate;
 		return gate.decompose(qubits);
+	}
+	
+	public function channel():Array<NdArray> {
+		if (operationKind != OperationKind.Measurement) throw 'error : this operation is not measurement.';
+		var gate:Measurement = cast this.gate;
+		return gate.channel();
 	}
 	
 	public function keys():Iterator<Qid> {

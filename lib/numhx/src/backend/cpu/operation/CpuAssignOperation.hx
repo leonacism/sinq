@@ -3,6 +3,7 @@ import backend.cpu.CpuBackend;
 import backend.cpu.CpuNdArrayOperation;
 import buffer.NdArrayBufferId;
 import buffer.NdArrayBufferView;
+import util.TypeValidator;
 
 /**
  * ...
@@ -48,7 +49,7 @@ class CpuAssignOperation extends CpuNdArrayOperation
 			}];
 		}
 		
-		if (dst.naive) dst.buffer.setValue(v);
+		if (dst.naive) dst.buffer.setValue([for(i in 0...dst.size) TypeValidator.cast_(v[i], dst.buffer.dtype)]);
 		else {
 			var ndim = dst.ndim;
 			var shape = dst.shape;
@@ -71,7 +72,7 @@ class CpuAssignOperation extends CpuNdArrayOperation
 					j %= targetStrides[i];
 				}
 				
-				dst.buffer.set(idx, v[i]);
+				dst.buffer.set(idx, TypeValidator.cast_(v[i], dst.buffer.dtype));
 			}
 		}
 	}

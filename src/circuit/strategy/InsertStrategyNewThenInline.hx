@@ -6,9 +6,11 @@ import operation.Operation;
  * ...
  * @author leonaci
  */
-class InsertStrategyNewThenInline
+class InsertStrategyNewThenInline implements InsertStrategy
 {
-	static public function insert(moments:Array<Moment>, operations:Array<Operation>):Void {
+	public function new() {}
+	
+	public function insert(moments:Array<Moment>, operations:Array<Operation>):Void {
 		moments.push(new Moment([operations[0]]));
 		
 		for (i in 1...operations.length) {

@@ -2,6 +2,7 @@ package backend.cpu.operation;
 import backend.cpu.CpuBackend;
 import backend.cpu.CpuNdArrayOperation;
 import buffer.NdArrayBufferView.NdArrayBufferViewData;
+import util.TypeValidator;
 
 /**
  * ...
@@ -21,7 +22,7 @@ class CpuAssignScalarOperation extends CpuNdArrayOperation
 	}
 	
 	override public function run():Void {
-		if (dst.naive) dst.buffer.setValue([for(i in 0...dst.size) a]);
+		if (dst.naive) dst.buffer.setValue([for(i in 0...dst.size) TypeValidator.cast_(a, dst.buffer.dtype)]);
 		else {
 			var ndim = dst.ndim;
 			var shape = dst.shape;
@@ -44,7 +45,7 @@ class CpuAssignScalarOperation extends CpuNdArrayOperation
 					j %= targetStrides[i];
 				}
 				
-				dst.buffer.set(idx, a);
+				dst.buffer.set(idx, TypeValidator.cast_(a, dst.buffer.dtype));
 			}
 		}
 	}
