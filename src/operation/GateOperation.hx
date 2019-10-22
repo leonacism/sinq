@@ -1,4 +1,5 @@
 package operation;
+import numhx.NdArray;
 import operation.gate.Gate;
 import operation.gate.channel.Measurement;
 import operation.gate.feature.UnitaryGate;

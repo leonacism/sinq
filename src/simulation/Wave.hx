@@ -1,7 +1,9 @@
 package simulation;
-import util.MathUtil;
+import numhx.util.MathUtil;
+import numhx.NdArrayDataType;
 import operation.Operation;
 import operation.gate.channel.Measurement;
+import numhx.NdArray;
 
 /**
  * ...

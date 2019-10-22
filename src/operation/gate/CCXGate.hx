@@ -1,5 +1,8 @@
 package operation.gate;
-import io.Complex;
+import numhx.io.Complex;
+import numhx.NdArray;
+import numhx.NdArrayDataType;
+import numhx.Slice;
 import operation.gate.HGate;
 import operation.gate.feature.EigenGate;
 import operation.gate.feature.ThreeQubitGate;

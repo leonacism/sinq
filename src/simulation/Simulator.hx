@@ -1,15 +1,15 @@
 package simulation;
-import backend.BackendKind;
 import circuit.Circuit;
 import haxe.ds.Map;
-import io.Complex;
-import operation.GateOperation;
+import numhx.NdArray;
+import numhx.NdArrayDataType;
+import numhx.NdArraySession;
+import numhx.backend.BackendKind;
+import numhx.util.MathUtil;
 import operation.Operation;
 import operation.OperationKind;
 import operation.gate.channel.Measurement;
-import operation.gate.channel.Measurement.MeasurementKey;
 import simulation.SimulationResultCollection;
-import util.MathUtil;
 
 
 

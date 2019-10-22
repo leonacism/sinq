@@ -1,4 +1,7 @@
 package operation.gate;
+import numhx.NdArray;
+import numhx.NdArrayDataType;
+import numhx.Slice;
 import operation.gate.feature.ThreeQubitGate;
 import operation.gate.feature.UnitaryGate;
 

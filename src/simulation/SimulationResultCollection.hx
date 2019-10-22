@@ -1,5 +1,6 @@
 package simulation;
 import haxe.ds.Map;
+import numhx.NdArray;
 import operation.gate.channel.Measurement.MeasurementKey;
 
 /**

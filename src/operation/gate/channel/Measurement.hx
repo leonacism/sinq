@@ -1,5 +1,5 @@
 package operation.gate.channel;
-import operation.gate.feature.BaseGate;
+import numhx.NdArray;
 import operation.gate.feature.Channel;
 
 /**
