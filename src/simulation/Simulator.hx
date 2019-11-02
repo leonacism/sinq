@@ -1,4 +1,5 @@
 package simulation;
+import numhx.Random;
 import circuit.Circuit;
 import haxe.ds.Map;
 import numhx.NdArray;
@@ -22,6 +23,8 @@ class Simulator
 	static public function run(circuit:Circuit, ?repetition:Int = 1, ?backend:BackendKind = BackendKind.Cpu):SimulationResultCollection {
 		NdArraySession.setBackend(backend);
 		
+		var s:UInt = Random.randint(-2147483648, 2147483647);
+
 		var numQubits:Int = circuit.qubits.length;
 		var qubits:Array<Qubit> = circuit.qubits;
 		var digitMap:Map<Qid, Int> = [for (i in 0...numQubits) qubits[i].id => i];
@@ -38,7 +41,7 @@ class Simulator
 					case OperationKind.Measurement:
 						{
 							var lastWave = result.wave;
-							for (i in 0...repetition) lastWave.execMeasurement(op, indices, data, numQubits, false);
+							for (i in 0...repetition) lastWave.execMeasurement(op, indices, data, numQubits, false, s+i);
 						}
 					case _:
 				}
@@ -46,7 +49,7 @@ class Simulator
 		}
 		else {
 			for (i in 0...repetition) {
-				var result:StepResult = step(circuit, 0, true);
+				var result:StepResult = step(circuit, 0, true, s+i);
 				collection.append(result.data);
 			}
 		}
@@ -54,7 +57,7 @@ class Simulator
 		return collection;
 	}
 	
-	static public function simulate(circuit:Circuit, ?repetition:Int=1, ?backend:BackendKind=BackendKind.Cpu):SimulationResultCollection {
+	static public function simulate(circuit:Circuit, ?repetition:Int=1, ?backend:BackendKind=BackendKind.Cpu, ?s:UInt=0):SimulationResultCollection {
 		NdArraySession.setBackend(backend);
 		
 		var numQubits:Int = circuit.qubits.length;
@@ -77,7 +80,7 @@ class Simulator
 					{
 						var lastWave = intermediateWaves[intermediateWaves.length-1];
 						for(i in 0...repetition) {
-							lastWave.execMeasurement(op, indices, data, numQubits, false);
+							lastWave.execMeasurement(op, indices, data, numQubits, false, s+i);
 							
 							var lastData = data[data.length - 1];
 							lastData.intermediates = intermediateWaves;
@@ -89,7 +92,7 @@ class Simulator
 		}
 		else {
 			for (i in 0...repetition) {
-				var results:Array<StepResult> = stepByMoment(circuit, 0, true);
+				var results:Array<StepResult> = stepByMoment(circuit, 0, true, s+i);
 				
 				var intermediateWaves:Array<Wave> = [];
 				for (result in results) {
@@ -119,7 +122,7 @@ class Simulator
 		return true;
 	}
 	
-	static public function step(circuit:Circuit, initialState:Int, performMeasurement:Bool):StepResult {
+	static public function step(circuit:Circuit, initialState:Int, performMeasurement:Bool, ?s:UInt):StepResult {
 		var numQubits:Int = circuit.qubits.length;
 		var qubits:Array<Qubit> = circuit.qubits;
 		var digitMap:Map<Qid, Int> = [for (i in 0...numQubits) qubits[i].id => i];
@@ -138,7 +141,7 @@ class Simulator
 				}
 				case OperationKind.Measurement:
 				{
-					if(performMeasurement) wave.execMeasurement(op, indices, data, numQubits, true);
+					if(performMeasurement) wave.execMeasurement(op, indices, data, numQubits, true, s);
 				}
 			}
 		}
@@ -146,7 +149,7 @@ class Simulator
 		return new StepResult(wave, data);
 	}
 	
-	static public function stepByMoment(circuit:Circuit, initialState:Int, performMeasurement:Bool):Array<StepResult> {
+	static public function stepByMoment(circuit:Circuit, initialState:Int, performMeasurement:Bool, ?s:UInt):Array<StepResult> {
 		var stepResults = [];
 		
 		var numQubits:Int = circuit.qubits.length;
@@ -168,7 +171,7 @@ class Simulator
 				}
 				case OperationKind.Measurement:
 				{
-					if(performMeasurement) wave.execMeasurement(op, indices, data, numQubits, true);
+					if(performMeasurement) wave.execMeasurement(op, indices, data, numQubits, true, s);
 				}
 			}
 			

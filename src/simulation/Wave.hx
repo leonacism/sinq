@@ -1,4 +1,5 @@
 package simulation;
+import numhx.Random;
 import numhx.util.MathUtil;
 import numhx.NdArrayDataType;
 import operation.Operation;
@@ -107,8 +108,10 @@ class Wave
 		return true;
 	}
 	
-	public function execMeasurement(op:Operation, indices:Array<Int>, measurements:Array<MeasurementData>, numQubits:Int, measured:Bool):Void {
+	public function execMeasurement(op:Operation, indices:Array<Int>, measurements:Array<MeasurementData>, numQubits:Int, measured:Bool, ?s:UInt):Void {
 		var probs = getProbs();
+
+		if(s!=null) Random.seed(s);
 		var selected:Int = Random.choice(probs);
 		
 		var gate:Measurement = (cast op).gate;
