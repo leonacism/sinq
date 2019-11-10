@@ -1,5 +1,5 @@
 package operation.gate;
-import operation.GateOperation;
+import operation.Operation;
 
 /**
  * @author leonaci
@@ -7,8 +7,7 @@ import operation.GateOperation;
 interface Gate
 {
 	var numQubits(get, null):Int;
-	private function get_numQubits():Int;
 	
 	/** provides an operation corresponding to this gate.*/
-	function on(qubits:Array<Qubit>):GateOperation;
+	function on(qubits:Array<Qubit>):Operation;
 }

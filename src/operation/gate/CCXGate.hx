@@ -80,4 +80,8 @@ class CCXGate implements EigenGate extends ThreeQubitGate
 			h     .on([      t]),
 		];
 	}
+
+	override public function on(qubits:Array<Qubit>):Operation {
+		return new UnitaryOperation(this, qubits);
+	}
 }

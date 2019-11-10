@@ -11,14 +11,22 @@ abstract MeasurementKey(String) from String {
  
 class Measurement implements Channel
 {
-	public var measurementKey(default, null):MeasurementKey;
+	public var key(default, null):MeasurementKey;
 	
 	public var numQubits(get, null):Int;
-	private function get_numQubits():Int return numQubits;
+	inline function get_numQubits():Int return numQubits;
 
 	public function new(key:String)
 	{
-		this.measurementKey = key;
+		this.key = key;
+	}
+
+	public function applyChannel(i:Int, target:NdArray):NdArray {
+		var size = 1 << numQubits;
+
+		for (j in 0...size) if(i != j) target['$j'] = 0;
+
+		return target;
 	}
 	
 	public function channel():Array<NdArray> {
@@ -37,8 +45,8 @@ class Measurement implements Channel
 		return result;
 	}
 	
-	public function on(qubits:Array<Qubit>):GateOperation {
+	public function on(qubits:Array<Qubit>):Operation {
 		numQubits = qubits.length;
-		return new GateOperation(this, qubits);
+		return new MeasurementOperation(this, qubits);
 	}
 }

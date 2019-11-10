@@ -6,5 +6,6 @@ import numhx.NdArray;
  */
 interface Channel extends Gate
 {
+	function applyChannel(i:Int, target:NdArray):NdArray;
 	function channel():Array<NdArray>;
 }

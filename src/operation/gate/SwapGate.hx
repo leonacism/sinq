@@ -77,4 +77,8 @@ class SwapGate implements EigenGate extends TwoQubitGate
 			cnot.on([a, b]),
 		];
 	}
+
+	override public function on(qubits:Array<Qubit>):Operation {
+		return new UnitaryOperation(this, qubits);
+	}
 }

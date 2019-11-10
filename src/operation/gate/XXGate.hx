@@ -73,4 +73,8 @@ class XXGate implements EigenGate extends TwoQubitGate
 	public function decompose(qubit:Array<Qubit>):Array<Operation> {
 		return null;
 	}
+
+	override public function on(qubits:Array<Qubit>):Operation {
+		return new UnitaryOperation(this, qubits);
+	}
 }

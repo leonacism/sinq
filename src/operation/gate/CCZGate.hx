@@ -72,4 +72,8 @@ class CCZGate implements EigenGate extends ThreeQubitGate
 			cnot.on([b,c]),
 		];
 	}
+
+	override public function on(qubits:Array<Qubit>):Operation {
+		return new UnitaryOperation(this, qubits);
+	}
 }

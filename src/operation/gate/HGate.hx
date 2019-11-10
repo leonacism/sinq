@@ -11,8 +11,7 @@ import operation.gate.feature.UnitaryGate;
  * ...
  * @author leonaci
  */
-class HGate implements EigenGate extends SingleQubitGate
-{
+class HGate implements EigenGate extends SingleQubitGate {
 	public var exponent(default, null):Float;
 	
 	public function new(?exponent:Float=1) {
@@ -70,5 +69,9 @@ class HGate implements EigenGate extends SingleQubitGate
 			new XGate(exponent).on([q]),
 			new YGate(   -0.25).on([q]),
 		];
+	}
+
+	override public function on(qubits:Array<Qubit>):Operation {
+		return new UnitaryOperation(this, qubits);
 	}
 }

@@ -1,4 +1,6 @@
 package simulation;
+import operation.UnitaryOperation;
+import operation.MeasurementOperation;
 import numhx.Random;
 import numhx.util.MathUtil;
 import numhx.NdArrayDataType;
@@ -32,12 +34,12 @@ class Wave
 		}
 		
 		for (func in funcs) {
-			var success = func(this, op, indices, numQubits);
+			var success = func(this, cast op, indices, numQubits);
 			if (success) break;
 		}
 	}
 	
-	static private function resolveByApplication(wave:Wave, op:Operation, indices:Array<Int>, numQubits:Int):Bool {
+	static private function resolveByApplication(wave:Wave, op:UnitaryOperation, indices:Array<Int>, numQubits:Int):Bool {
 		var size = 1 << numQubits;
 		var numTargetQubits = op.qubits.length;
 		var numOtherQubits = numQubits - numTargetQubits;
@@ -65,7 +67,7 @@ class Wave
 		return true;
 	}
 
-	static private function resolveByRepresentation(wave:Wave, op:Operation, indices:Array<Int>, numQubits:Int):Bool {
+	static private function resolveByRepresentation(wave:Wave, op:UnitaryOperation, indices:Array<Int>, numQubits:Int):Bool {
 		var size = 1 << numQubits;
 		var numTargetQubits = op.qubits.length;
 		var numOtherQubits = numQubits - numTargetQubits;
@@ -94,7 +96,7 @@ class Wave
 		return true;
 	}
 	
-	static private function resolveByDecomposition(wave:Wave, op:Operation, indices:Array<Int>, numQubits:Int):Bool {
+	static private function resolveByDecomposition(wave:Wave, op:UnitaryOperation, indices:Array<Int>, numQubits:Int):Bool {
 		var ops = op.decompose();
 		if (ops == null) return false;
 		
@@ -108,15 +110,11 @@ class Wave
 		return true;
 	}
 	
-	public function execMeasurement(op:Operation, indices:Array<Int>, measurements:Array<MeasurementData>, numQubits:Int, measured:Bool, ?s:UInt):Void {
+	public function execMeasurement(op:MeasurementOperation, indices:Array<Int>, measurements:Array<MeasurementData>, numQubits:Int, measured:Bool, ?s:UInt):Void {
 		var probs = getProbs();
 
 		if(s!=null) Random.seed(s);
 		var selected:Int = Random.choice(probs);
-		
-		var gate:Measurement = (cast op).gate;
-		
-		var name = gate.measurementKey;
 		
 		var bit = 0;
 		for (i in 0...indices.length) {
@@ -124,7 +122,7 @@ class Wave
 		}
 		
 		measurements.push({
-			name: name,
+			name: op.measurementKey,
 			qubits: op.qubits,
 			data: bit,
 		});
@@ -145,9 +143,8 @@ class Wave
 		states = states.transpose(transposeIndices);
 		states = states.reshape([1 << numOtherQubits, 1 << numTargetQubits]);
 		
-		var proj:NdArray = op.channel()[bit];
 		for (i in 0...1 << numOtherQubits) {
-			var result = NdArray.dot(proj, states['$i']);
+			var result = op.applyChannel(bit, states['$i']);
 			states['$i'] = result;
 		}
 		

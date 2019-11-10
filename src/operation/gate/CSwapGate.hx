@@ -75,4 +75,8 @@ class CSwapGate implements UnitaryGate extends ThreeQubitGate
 			x   .pow(-0.5).on([b  ]),
 		];
 	}
+
+	override public function on(qubits:Array<Qubit>):Operation {
+		return new UnitaryOperation(this, qubits);
+	}
 }

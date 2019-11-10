@@ -72,4 +72,8 @@ class CNotGate implements EigenGate extends TwoQubitGate
 			new  YGate(     0.5).on([  t]),
 		];
 	}
+
+	override public function on(qubits:Array<Qubit>):Operation {
+		return new UnitaryOperation(this, qubits);
+	}
 }

@@ -41,7 +41,7 @@ class Simulator
 					case OperationKind.Measurement:
 						{
 							var lastWave = result.wave;
-							for (i in 0...repetition) lastWave.execMeasurement(op, indices, data, numQubits, false, s+i);
+							for (i in 0...repetition) lastWave.execMeasurement(cast op, indices, data, numQubits, false, s+i);
 						}
 					case _:
 				}
@@ -80,7 +80,7 @@ class Simulator
 					{
 						var lastWave = intermediateWaves[intermediateWaves.length-1];
 						for(i in 0...repetition) {
-							lastWave.execMeasurement(op, indices, data, numQubits, false, s+i);
+							lastWave.execMeasurement(cast op, indices, data, numQubits, false, s+i);
 							
 							var lastData = data[data.length - 1];
 							lastData.intermediates = intermediateWaves;
@@ -137,11 +137,11 @@ class Simulator
 			switch(op.operationKind) {
 				case OperationKind.Unitary:
 				{
-					wave.execUnitaryOp(op, indices, numQubits);
+					wave.execUnitaryOp(cast op, indices, numQubits);
 				}
 				case OperationKind.Measurement:
 				{
-					if(performMeasurement) wave.execMeasurement(op, indices, data, numQubits, true, s);
+					if(performMeasurement) wave.execMeasurement(cast op, indices, data, numQubits, true, s);
 				}
 			}
 		}
@@ -167,11 +167,11 @@ class Simulator
 			switch(op.operationKind) {
 				case OperationKind.Unitary:
 				{
-					wave.execUnitaryOp(op, indices, numQubits);
+					wave.execUnitaryOp(cast op, indices, numQubits);
 				}
 				case OperationKind.Measurement:
 				{
-					if(performMeasurement) wave.execMeasurement(op, indices, data, numQubits, true, s);
+					if(performMeasurement) wave.execMeasurement(cast op, indices, data, numQubits, true, s);
 				}
 			}
 			
