@@ -14,19 +14,19 @@ import operation.Operation;
  */
 class Circuit
 {
+	static private var defaultInsertStrategyKind:InsertStrategyKind = InsertStrategyKind.NewThenInline;
+	
 	public var moments(default, null):Array<Moment>;
 	public var qubits(default, null):Array<Qubit>;
 	
-	private var strategyKind:InsertStrategyKind;
 	
 	public function new(qubits:Array<Qubit>) {
 		moments = [];
 		this.qubits = qubits;
-		strategyKind = InsertStrategyKind.NewThenInline;
 	}
 	
 	public function append(operations:Array<Operation>, ?strategyKind:InsertStrategyKind):Circuit {
-		var strategy:InsertStrategy = switch(strategyKind!=null? strategyKind : this.strategyKind) {
+		var strategy:InsertStrategy = switch(strategyKind!=null? strategyKind : defaultInsertStrategyKind) {
 			case InsertStrategyKind.Earliest: new InsertStrategyEarliest();
 			case InsertStrategyKind.New: new InsertStrategyNew();
 			case InsertStrategyKind.Inline: new InsertStrategyInline();
