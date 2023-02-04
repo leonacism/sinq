@@ -3,4 +3,5 @@ src/test
 
 *.hxml
 *.hxproj
+*.code-workspace
 *.txt
