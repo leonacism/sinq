@@ -6,7 +6,7 @@ package operation.gate.feature;
  */
 class TwoQubitGate implements Gate {
 	public var numQubits(get, null):Int;
-	inline function get_numQubits():Int return 1;
+	inline function get_numQubits():Int return 2;
 
 	public function on(qubits:Array<Qubit>):Operation throw 'error: not implemented.';
 }
