@@ -10,9 +10,13 @@ class Qubit
 	
 	public var id:Qid;
 	
-	public function new() 
+	private function new() 
 	{
 		id = new Qid(UID++);
 	}
 	
+	static public function alloc():Qubit
+	{
+		return new Qubit();
+	}
 }
