@@ -16,11 +16,11 @@ abstract Slice(String) from String
 	public function resolveSlice(shape:Array<Int>, strides:Array<Int>):Int {
 		var newShape = [], newStrides = [];
 		
-		var slice:Array<SliceObject> = build();
+		var slices:Array<SliceObject> = parse();
 		
 		var numEllipsis = 0;
 		var numConstraint = 0;
-		for (i in 0...slice.length) switch(slice[i]) {
+		for (i in 0...slices.length) switch(slices[i]) {
 			case SliceObject.Ellipsis: numEllipsis++;
 			case SliceObject.Index(_) | SliceObject.Object(_): numConstraint++;
 			case SliceObject.None:
@@ -30,7 +30,7 @@ abstract Slice(String) from String
 		if (shape.length < numConstraint + numEllipsis) throw 'error: too many indices for array.';
 		
 		if (numEllipsis == 0 && shape.length > numConstraint) {
-			slice.push(SliceObject.Ellipsis);
+			slices.push(SliceObject.Ellipsis);
 			numEllipsis++;
 		}
 		
@@ -38,51 +38,50 @@ abstract Slice(String) from String
 		
 		var offset = 0;
 		var i = 0, j = 0;
-		while(i < slice.length) {
-			switch(slice[i]) {
-				case SliceObject.Index(idx):
+		for(slice in slices) switch(slice) {
+			case SliceObject.Index(idx):
+			{
+				if (idx < 0) idx += shape[j];
+				offset += idx * strides[j];
+				
+				i++; j++;
+			}
+			case SliceObject.Object(data):
+			{
+				var begin = data[0];
+				var end = data[1];
+				var stride = data[2];
+				
+				if (begin < 0) begin += shape[j];
+				if (end < 0) end += shape[j];
+				
+				if (stride == null) stride = 1;
+				if (begin == null) begin = stride > 0? 0 : shape[j] - 1;
+				if (end == null) end = stride > 0? shape[j] : -1;
+				
+				newShape.push(Std.int((end-begin+(stride>0?-1:1))/stride)+1);
+				newStrides.push(strides[j] * stride);
+				offset += begin * strides[j];
+				
+				i++; j++;
+			}
+			case SliceObject.Ellipsis:
+			{
+				for (k in j...j + lenEllipsis)
 				{
-					if (idx < 0) idx += shape[j];
-					offset += idx * strides[j];
-					
-					i++; j++;
+					newShape.push(shape[k]);
+					newStrides.push(strides[k]);
 				}
-				case SliceObject.Object(data):
-				{
-					var begin = data[0];
-					var end = data[1];
-					var stride = data[2];
-					
-					if (begin < 0) begin += shape[j];
-					if (end < 0) end += shape[j];
-					
-					if (stride == null) stride = 1;
-					if (begin == null) begin = stride > 0? 0 : shape[j] - 1;
-					if (end == null) end = stride > 0? shape[j] : -1;
-					
-					newShape.push(Std.int((end-begin+(stride>0?-1:1))/stride)+1);
-					newStrides.push(strides[j] * stride);
-					offset += begin * strides[j];
-					
-					i++; j++;
-				}
-				case SliceObject.Ellipsis:
-				{
-					for(k in j...j + lenEllipsis) {
-						newShape.push(shape[k]);
-						newStrides.push(strides[k]);
-					}
-					
-					i += lenEllipsis;
-					j += lenEllipsis;
-				}
-				case SliceObject.None:
-				{
-					newShape.push(1);
-					newStrides.push(0);
-					
-					i++;
-				}
+				
+				i += lenEllipsis;
+				j += lenEllipsis;
+			}
+			case SliceObject.None:
+			{
+				newShape.push(1);
+				newStrides.push(0);
+				
+				i++;
 			}
 		}
 		shape.resize(newShape.length);
@@ -94,7 +93,7 @@ abstract Slice(String) from String
 		return offset;
 	}
 	
-	private function build():Array<SliceObject> {
+	private function parse():Array<SliceObject> {
 		var obj:Array<Array<String>> = this.split(',').map(str->str.split(':'));
 		
 		var result:Array<SliceObject> = [];

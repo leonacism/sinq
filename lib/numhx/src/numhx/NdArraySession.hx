@@ -1,7 +1,6 @@
 package numhx;
 import numhx.NdArray;
 import numhx.backend.BackendKind;
-import numhx.backend.cpu.CpuBackend;
 import numhx.buffer.NdArrayBufferManager;
 
 /**
@@ -19,7 +18,15 @@ class NdArraySession
 	static public function setBackend(backendKind:BackendKind) 
 	{
 		var backend = switch(backendKind) {
-			case BackendKind.Cpu: new CpuBackend();
+			case BackendKind.Cpu: new numhx.backend.cpu.CpuBackend();
+			case BackendKind.WebGL:
+			{
+				#if js
+				new numhx.backend.webgl.WebGLBackend();
+				#else
+				throw 'WebGL backend is only supported for js target.';
+				#end
+			}
 		}
 		
 		manager = new NdArrayBufferManager(backend);

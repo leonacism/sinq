@@ -6,4 +6,5 @@ package numhx.backend;
 enum BackendKind 
 {
 	Cpu;
+	WebGL;
 }
